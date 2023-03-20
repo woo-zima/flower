@@ -1,7 +1,11 @@
 <template>
-  <div>app running</div>
+  <div>
+    <Map></Map>
+  </div>
 </template>
 
-<script setup></script>
+<script setup>
+import Map from '@/components/Map.vue';
+</script>
 
 <style scoped></style>
