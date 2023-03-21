@@ -11,7 +11,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'js/bundle.js',
-    clean: true,
+    clean: true, //“/dist”文件夹清理
   },
   resolve: {
     extensions: ['.js', '.json', '.vue'],
@@ -20,6 +20,7 @@ module.exports = {
     },
   },
   devServer: {
+    //static: './dist', //从什么位置查找文件
     port: '3000',
     hot: true,
   },
@@ -30,7 +31,7 @@ module.exports = {
         loader: 'vue-loader',
       },
       {
-        test: /\.css$/,
+        test: /\.css$/i,
         use: [{ loader: 'style-loader' }, { loader: 'css-loader' }],
       },
     ],
