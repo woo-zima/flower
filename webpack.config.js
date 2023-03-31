@@ -21,8 +21,9 @@ module.exports = {
   },
   devServer: {
     //static: './dist', //从什么位置查找文件
-    port: '3000',
+    port: '3001',
     hot: true,
+    historyApiFallback: true, //开启webpack中 devServer关于h5的history api 的配置
   },
   module: {
     rules: [
@@ -53,4 +54,5 @@ module.exports = {
       resolvers: [ElementPlusResolver()],
     }),
   ],
+  devtool: 'inline-source-map',
 };

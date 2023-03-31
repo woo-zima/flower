@@ -39,6 +39,8 @@ a {
 }
 .el-main {
   --el-main-padding: 0;
+  height: calc(100vh - 60px);
+  overflow-y: hidden;
 }
 .el-header {
   padding: 0;

@@ -2,7 +2,11 @@
   <div class="HeaderBar">
     <el-row justify="space-around" style="width: 100%">
       <el-col class="header-info" :lg="10" :sm="10" :xs="8">
-        <el-button type="primary">Upload</el-button>
+        <div class="g_btn">
+          <el-button type="primary" @click="goHome">主页</el-button>
+          <el-button type="primary" @click="goUpLoad">上传</el-button>
+          <el-button type="primary" @click="goMap">地图</el-button>
+        </div>
       </el-col>
       <el-col class="header-info" :lg="10" :sm="10" :xs="8">
         <el-autocomplete
@@ -119,6 +123,22 @@ const querySearch = async (queryString, cb) => {
   } else {
     cb(state.queryList);
   }
+};
+//跳转上传页
+const goUpLoad = () => {
+  router.push({
+    path: `/upload`,
+  });
+};
+const goHome = () => {
+  router.push({
+    path: `/`,
+  });
+};
+const goMap = () => {
+  router.push({
+    path: `/map`,
+  });
 };
 
 const handleSearch = item => {
