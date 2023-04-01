@@ -4,15 +4,14 @@
       <div class="block">
         <el-date-picker v-model="monthValue" type="month" placeholder="选择花期月份" />
       </div>
-      <!-- <div class="photo_c">
+      <div class="photo_c">
         <VirtualPhotoList
           :photoList="photoList"
           :listSize="listSize"
           :showList="showList"
         ></VirtualPhotoList>
-      </div> -->
+      </div>
     </div>
-    <MapPlaceInput></MapPlaceInput>
   </el-config-provider>
 </template>
 

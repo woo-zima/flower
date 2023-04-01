@@ -56,7 +56,7 @@
       <div class="previewP">
         <div class="upRight setP">
           <el-form ref="uploadForm" :model="state.uploadMsgForm" :rules="rules">
-            <el-form-item prop="pname" class="scroll-itme" label="作品标题">
+            <el-form-item prop="pname" class="scroll-itme" label="标题">
               <el-input
                 v-model="state.uploadMsgForm.pname"
                 clearable
@@ -66,7 +66,7 @@
               />
             </el-form-item>
 
-            <el-form-item class="scroll-itme" prop="tag" label="Tag">
+            <el-form-item class="scroll-itme" prop="tag" label="简介">
               <el-checkbox-group v-model="state.uploadMsgForm.tag">
                 <el-checkbox-button label="风景" name="type" />
                 <el-checkbox-button label="动漫" name="type" />
@@ -74,12 +74,12 @@
                 <el-checkbox-button label="人物" name="type" />
               </el-checkbox-group>
             </el-form-item>
-
-            <el-form-item>
-              <el-button type="primary" @click="onSubmit(uploadForm)">上传</el-button>
-              <el-button @click="resetForm(uploadForm)">取消</el-button>
-            </el-form-item>
           </el-form>
+          <MapPlaceInput ref="mapPlaceInput"></MapPlaceInput>
+          <div>
+            <el-button type="primary" @click="onSubmit(uploadForm)">上传</el-button>
+            <el-button @click="resetForm(uploadForm)">取消</el-button>
+          </div>
         </div>
         <div class="setP">
           <span class="preview" @click="showPreview">查看预览</span>
@@ -103,7 +103,7 @@ import { mainStore } from '@/store';
 const dialogImageUrl = ref('');
 const dialogVisible = ref(false);
 const disabled = ref(false);
-
+const mapPlaceInput = ref(null); //获取子组件实例
 const store = mainStore();
 const uploadForm = ref();
 const uploadFile = ref();
@@ -261,7 +261,7 @@ const uploadPhoto = async (file, res) => {
 const uploadError = (err, file, fileList) => {
   console.log(err);
 };
-const onSubmit = Form => {
+const onSubmit = async Form => {
   if (!Form) return;
   if (Object.keys(imgFileFlag).length === 0) {
     ElMessage({
@@ -271,9 +271,11 @@ const onSubmit = Form => {
     });
     return;
   }
+  mapPlaceInput.value.validatePlace();
   Form.validate(valid => {
     if (valid) {
-      uploadFile.value.submit();
+      // uploadFile.value.submit();
+      console.log(state.uploadMsgForm, mapPlaceInput.value.sname);
       // console.log(state.uploadMsgForm);
     } else {
       return false;
@@ -283,6 +285,7 @@ const onSubmit = Form => {
 const resetForm = formEl => {
   if (!formEl) return;
   formEl.resetFields();
+  mapPlaceInput.value.deletePlace();
 };
 const showPreview = () => {
   if (state.previewSrc.length === 0) {
@@ -358,6 +361,7 @@ const loadRemove = () => {
 }
 .upContainer .upLeft {
   padding: 0 7.1%;
+  text-align: center;
 }
 .upLeft .previewList img {
   width: 50%;

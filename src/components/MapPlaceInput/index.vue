@@ -1,5 +1,5 @@
 <template>
-  <div style="margin: 50px; width: 300px">
+  <div>
     <el-form ref="addressForm" :model="addForm" :rules="addRules">
       <el-form-item label="地址：" prop="sname">
         <el-input
@@ -9,6 +9,7 @@
           @input="placeAutoInput('sname')"
           @keyup.delete.native="deletePlace('sname')"
           placeholder="请输入地址"
+          clearable
         >
           <i class="el-icon-location-outline el-input__icon" slot="suffix" title="地址"></i>
         </el-input>
@@ -41,14 +42,14 @@
 <script setup>
 import AMapLoader from '@amap/amap-jsapi-loader';
 import placeSearch from './placeSearch.vue';
-import { reactive, ref, onMounted } from 'vue';
+import { reactive, ref, onMounted, toRefs } from 'vue';
 
 const addForm = reactive({
   sname: '', // 地点名称
   slat: 0, // 地点纬度
   slng: 0, // 地点经度
 });
-const addressForm = ref(null);
+const addressForm = ref(); //ref表单
 
 //保存地图
 const ADMap = ref({});
@@ -73,22 +74,19 @@ onMounted(() => {
     securityJsCode: 'c23da6fd8c694cd3a95f9eb8d0f01cb7',
   };
 });
-const validatePlace = (rules, value, callback) => {
-  if (rules.field === 'sname') {
-    if (value === '') {
-      callback(new Error('请输入地址'));
+const validatePlace = () => {
+  addressForm.value.validate(valid => {
+    if (valid) {
+      return true;
+      // console.log(state.uploadMsgForm);
     } else {
-      if (!addForm.slat || addForm.slat === 0) {
-        callback(new Error('请搜索并选择有经纬度的地点'));
-      } else {
-        callback();
-      }
+      return false;
     }
-  }
+  });
 };
 
 const addRules = {
-  sname: [{ required: true, validator: validatePlace, trigger: 'change' }],
+  sname: [{ required: true, message: '请确认准确地址', trigger: 'change' }],
 };
 
 const placeAutoInput = inputid => {
@@ -228,13 +226,16 @@ const geocoder = (keyword, inputValue) => {
   });
 };
 // 做删除操作时还原经纬度并验证字段
-const deletePlace = inputId => {
-  if (inputId.value === 'sname') {
-    addForm.slat = 0;
-    addForm.slng = 0;
-    addressForm.value.validateField('sname');
-  }
+const deletePlace = () => {
+  addForm.slat = 0;
+  addForm.slng = 0;
+  addressForm.value.resetFields();
 };
+defineExpose({
+  validatePlace,
+  deletePlace,
+  ...toRefs(addForm),
+});
 </script>
 <style>
 .map-wrapper .map-self {

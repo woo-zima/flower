@@ -16,6 +16,11 @@ const routes = [
     name: 'map',
     component: () => import('@/components/Map.vue'),
   },
+  {
+    path: '/des/:fid',
+    name: 'des',
+    component: () => import('@/views/Des.vue'),
+  },
 ];
 
 const router = createRouter({

@@ -1,7 +1,12 @@
 <template>
-  <div class="container" style="height: calc(100vh - 60px)" @scroll="handleScroll" ref="container">
+  <div class="container" style="height: calc(100vh - 92px)" @scroll="handleScroll" ref="container">
     <div class="virtualList" :style="{ top: listTop }">
-      <div v-for="item in showData" :key="item.id" :style="{ height: listSize + 'px' }">
+      <div
+        v-for="item in showData"
+        :key="item.id"
+        :style="{ height: listSize + 'px' }"
+        @click="toDetail(item)"
+      >
         {{ item.content }}
       </div>
 
@@ -13,7 +18,7 @@
 
 <script setup>
 import { defineProps, reactive, ref, computed, toRefs } from 'vue';
-
+import { useRouter } from 'vue-router';
 const props = defineProps({
   photoList: {
     type: Array,
@@ -28,6 +33,7 @@ const props = defineProps({
     required: true,
   },
 });
+const router = useRouter();
 // 使用 toRefs 包裹 props，让解构获得的父组件传递的参数变为响应式的
 const { photoList, listSize, showList } = toRefs(props);
 
@@ -52,6 +58,16 @@ const handleScroll = () => {
   // 结束的下标就是起始的下标加上要展示的数据条数
   end.value = start.value + showList.value;
   //更新撑开元素高度
+};
+//点击详情页面
+const toDetail = item => {
+  // console.log(i);
+  router.push({
+    name: 'des',
+    params: {
+      fid: item.id,
+    },
+  });
 };
 </script>
 
