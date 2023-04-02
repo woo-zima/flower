@@ -11,11 +11,10 @@
             :on-change="changFile"
             :auto-upload="false"
             accept="image/jpeg,image/gif,image/png,image/bmp"
-            :data="state.uploadData"
             :on-success="handleAvatarSuccess"
             :on-error="uploadError"
             :before-upload="beforeAvatarUpload"
-            :on-remove="loadRemove"
+            :limit="6"
           >
             <el-icon><Plus /></el-icon>
 
@@ -47,7 +46,7 @@
               </div>
             </template>
             <template #tip>
-              <div class="el-upload__tip">jpg/png 文件最大不能超过2MB</div>
+              <div class="el-upload__tip">jpg/png 文件最大不能超过2MB,最多支持上传6张</div>
             </template>
           </el-upload>
         </div>
@@ -55,10 +54,10 @@
 
       <div class="previewP">
         <div class="upRight setP">
-          <el-form ref="uploadForm" :model="state.uploadMsgForm" :rules="rules">
+          <el-form ref="uploadForm" :model="state.uploadFormData" :rules="rules">
             <el-form-item prop="pname" class="scroll-itme" label="标题">
               <el-input
-                v-model="state.uploadMsgForm.pname"
+                v-model="state.uploadFormData.pname"
                 clearable
                 class="P_input"
                 size="large"
@@ -67,7 +66,7 @@
             </el-form-item>
 
             <el-form-item class="scroll-itme" prop="tag" label="简介">
-              <el-checkbox-group v-model="state.uploadMsgForm.tag">
+              <el-checkbox-group v-model="state.uploadFormData.tag">
                 <el-checkbox-button label="风景" name="type" />
                 <el-checkbox-button label="动漫" name="type" />
                 <el-checkbox-button label="暗" name="type" />
@@ -96,7 +95,7 @@
 </template>
 
 <script setup>
-import { computed, inject, onMounted, reactive, ref } from 'vue';
+import { computed, inject, onMounted, reactive, ref, toRefs } from 'vue';
 import { Delete, Download, Plus, ZoomIn } from '@element-plus/icons-vue';
 import { mainStore } from '@/store';
 
@@ -106,30 +105,19 @@ const disabled = ref(false);
 const mapPlaceInput = ref(null); //获取子组件实例
 const store = mainStore();
 const uploadForm = ref();
-const uploadFile = ref();
+const uploadFile = ref(null);
 let imgFileFlag = {};
 const state = reactive({
   uploadUrl: 'http://up-as0.qiniup.com',
-  uploadData: { key: '', token: '' },
-  formAdd: { brandLogo: '' },
-  config: {
-    //    useCdnDomain: true,//cdn加速
-    //region: qiniu.region.as0, //区域
-  },
   uploadFormData: {
-    upid: store.userDeail.uid,
-    psize: 0,
-    pname: '',
-    pdescribe: [],
-    pwidth: 0,
-    pheight: 0,
-    uptime: new Date(),
-    purl: '',
-  },
-  uploadMsgForm: {
     pname: '',
     tag: [],
+    pdescribe: [],
+    padress: '',
+    uptime: new Date(),
+    photoObj: [],
   },
+
   dialogConfig: {
     showDialog: false,
     dialogItem: {
@@ -151,7 +139,18 @@ onMounted(() => {
 });
 
 const handleRemove = file => {
-  console.log(file);
+  state.uploadFormData.photoObj = state.uploadFormData.photoObj.filter(item => {
+    return item.uid !== file.uid;
+  });
+
+  uploadFile.value.handleRemove(file);
+  // for (const i = 0; i < uld.length; i++) {
+  //   if (uld[i]['url'] === file.url) {
+  //     uld.splice(i, 1);
+  //   }
+  // }
+
+  console.log(state.uploadFormData.photoObj);
 };
 
 const handlePictureCardPreview = file => {
@@ -173,7 +172,10 @@ async function getToken() {
 
 const changFile = (file, fileList) => {
   console.log(file, fileList);
-  createReader(file.raw);
+  state.uploadFormData.photoObj.push(file.raw);
+  console.log(toRefs(state.uploadFormData.photoObj)[0].value);
+
+  // createReader(file.raw);
   const isPNG = file.raw.type === 'image/png';
   const isJPEG = file.raw.type === 'image/jpeg';
   const isJPG = file.raw.type === 'image/jpg';
@@ -203,7 +205,7 @@ const changFile = (file, fileList) => {
     return false;
   }
   imgFileFlag = file;
-  console.log(uploadFile);
+  // console.log(uploadFile);
 };
 const handleAvatarSuccess = (res, file, fileList) => {
   console.log('上传成功', res, file, fileList);
@@ -233,17 +235,17 @@ const createReader = function (file) {
   };
   reader.readAsDataURL(file);
 };
+//封装上传图片
+const uploadPhoto = async file => {
+  const pObj = toRefs(state.uploadFormData.photoObj);
+  const formdata = new FormData();
 
-const uploadPhoto = async (file, res) => {
-  console.log(file, res);
-  state.uploadFormData.psize = file.size;
-  state.uploadFormData.pname = state.uploadMsgForm.pname;
-  state.uploadFormData.pdescribe = state.uploadMsgForm.tag.join(' ');
-  state.uploadFormData.purl = res.key;
-  console.log(state.uploadFormData);
-
-  const Upres = await $api.photo.addPhoto(state.uploadFormData);
-  if (Upres.status === 200) {
+  formdata.set('flower', file);
+  for (let i = 0; i < pObj.length; i++) {
+    formdata.append('images', pObj[i].value);
+  }
+  const res = await $api.photo.addPhoto(formdata);
+  if (res.status === 200) {
     ElMessage({
       showClose: true,
       message: '上传成功',
@@ -252,7 +254,7 @@ const uploadPhoto = async (file, res) => {
   } else {
     ElMessage({
       showClose: true,
-      message: Upres.data.message,
+      message: res.data,
       type: 'error',
     });
   }
@@ -275,7 +277,8 @@ const onSubmit = async Form => {
   Form.validate(valid => {
     if (valid) {
       // uploadFile.value.submit();
-      console.log(state.uploadMsgForm, mapPlaceInput.value.sname);
+      state.uploadFormData.padress = mapPlaceInput.value.sname;
+      uploadPhoto(state.uploadFormData);
       // console.log(state.uploadMsgForm);
     } else {
       return false;
@@ -301,8 +304,13 @@ const showPreview = () => {
   state.dialogConfig.dialogItem.pname = state.uploadMsgForm.pname;
   state.dialogConfig.dialogItem.previewSrc = state.previewSrc.map(i => i);
 };
-const loadRemove = () => {
-  imgFileFlag = {};
+const loadRemove = (file, files) => {
+  for (const i = 0; i < files.length; i++) {
+    if (files[i]['url'] === file.url) {
+      files.splice(i, 1);
+    }
+  }
+  console.log(files);
   state.previewSrc = [];
 };
 </script>
