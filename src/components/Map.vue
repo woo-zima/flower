@@ -1,10 +1,6 @@
 <template>
   <div class="app-container">
-    statr:
-    <input type="text" id="start" v-model="oMap.startName" />
-    end:
-    <input type="text" id="end" v-model="oMap.endName" />
-    <button @click="goView">查询</button>
+    <span>使用其他方式导航。。</span>
     <div style="background-color: #ffffff">
       <div id="container"></div>
     </div>
@@ -13,8 +9,13 @@
 
 <script setup>
 import AMapLoader from '@amap/amap-jsapi-loader';
-import { ref, shallowRef, onMounted, reactive } from 'vue';
-
+import { ref, shallowRef, onMounted, reactive, toRefs, watch } from 'vue';
+const props = defineProps({
+  adressMsg: {
+    type: String,
+  },
+});
+const { adressMsg } = toRefs(props);
 const map = shallowRef(null); //地图面板
 const oMap = reactive({
   mymap: {},
@@ -27,20 +28,31 @@ onMounted(() => {
   window._AMapSecurityConfig = {
     securityJsCode: 'c23da6fd8c694cd3a95f9eb8d0f01cb7',
   };
+  navigator.geolocation.getCurrentPosition(position => {
+    current_position.value[0] = position.coords.latitude;
+    current_position.value[1] = position.coords.longitude;
+    // 在这里调用获取当前定位关键字的函数
+  });
+
   initMap();
 });
-
+watch(
+  () => adressMsg,
+  newVal => {
+    console.log(newVal);
+  }
+);
 const goView = () => {
-  console.log(oMap.startName, oMap.endName);
   //构造路线导航类
+  console.log(adressMsg);
   const Driving = new oMap.mymap.Driving({
     map: map.value, //地图
     hideMarkers: false, //自定义起点终点图标，默认false
     policy: oMap.mymap.DrivingPolicy.LEAST_TIME,
   });
   const points = [
-    { keyword: oMap.startName, city: '全国' },
-    { keyword: oMap.endName, city: '全国' },
+    { keyword: '重庆北站', city: '全国' },
+    { keyword: adressMsg.value, city: '全国' },
   ];
 
   // 根据起终点名称规划驾车导航路线
@@ -58,7 +70,7 @@ const initMap = () => {
   AMapLoader.load({
     key: 'fbe5c0bff727387368ff0566c40a084d', // 申请好的Web端开发者Key，首次调用 load 时必填
     version: '2.0', // 指定要加载的 JSAPI 的版本，缺省时默认为 1.4.15
-    plugins: ['AMap.ToolBar', 'AMap.Driving', 'AMap.Geolocation'], // 需要使用的的插件列表
+    plugins: ['AMap.ToolBar', 'AMap.Driving', 'AMap.Geolocation', 'AMap.Geocoder'], // 需要使用的的插件列表
   })
     .then(AMap => {
       oMap.mymap = AMap;
@@ -75,6 +87,7 @@ const initMap = () => {
       //   }
       //调用获取定位方法
       getGeolocation();
+      goView();
     })
     .catch(e => {
       console.log(e);
@@ -83,19 +96,26 @@ const initMap = () => {
 
 //地图定位
 const getGeolocation = () => {
-  const geolocation = new oMap.mymap.Geolocation({
-    enableHighAccuracy: true, //是否使用高精度定位，默认:true
-    timeout: 10000, //超过10秒后停止定位，默认：5s
-    // position: "RB", //定位按钮的停靠位置
-    // offset: [10, 240], //定位按钮与设置的停靠位置的偏移量，默认：[10, 20]
-    panToLocation: false,
+  // const geolocation = new oMap.mymap.Geolocation({
+  //   enableHighAccuracy: true, //是否使用高精度定位，默认:true
+  //   timeout: 10000, //超过10秒后停止定位，默认：5s
+  //   // position: "RB", //定位按钮的停靠位置
+  //   // offset: [10, 240], //定位按钮与设置的停靠位置的偏移量，默认：[10, 20]
+  //   showMarker: true, //定位成功后在定位到的位置显示点标记，默认：true
+  //   showCircle: true, //定位成功后用圆圈表示定位精度范围，默认：true
+  //   panToLocation: true, //定位成功后将定位到的位置作为地图中心点，默认：true
+  //   zoomToAccuracy: true, //定位成功后自动调整地图视野到定位精度范围，默认：true
+  // });
+  console.log([current_position.value[0], current_position.value[1]]);
+  const geocoder = new oMap.mymap.Geocoder({
+    radius: 1000,
+    extensions: 'all',
   });
-  map.value.addControl(geolocation);
-  geolocation.getCurrentPosition(function (status, result) {
-    if (status == 'complete') {
-      onComplete(result);
+  geocoder.getAddress([25.0642432, 121.5987712], function (status, result) {
+    if (status === 'complete' && result.regeocode) {
+      console.log(result);
     } else {
-      onError(result);
+      console.log('解析失败');
     }
   });
 };
@@ -117,6 +137,9 @@ function onError(data) {
   padding: 0px;
   margin: 0px;
   width: 100%;
-  height: 600px;
+  height: 500px;
+}
+.el-dialog {
+  --el-dialog-margin-top: 30px;
 }
 </style>

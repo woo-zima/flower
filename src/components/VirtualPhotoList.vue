@@ -3,11 +3,14 @@
     <div class="virtualList" :style="{ top: listTop }">
       <div
         v-for="item in showData"
-        :key="item.id"
+        :key="item.fid"
         :style="{ height: listSize + 'px' }"
         @click="toDetail(item)"
+        class="Sitem"
       >
-        {{ item.content }}
+        <div v-for="i in item" @click="toDetail(i)">
+          <img :src="'D:/Woo/NestProject/nest-demo/dist/image/' + i.furl" alt="" />
+        </div>
       </div>
 
       <!-- 用于撑开高度的元素 -->
@@ -21,7 +24,7 @@ import { defineProps, reactive, ref, computed, toRefs } from 'vue';
 import { useRouter } from 'vue-router';
 const props = defineProps({
   photoList: {
-    type: Array,
+    type: Object,
     required: true,
   },
   listSize: {
@@ -65,7 +68,7 @@ const toDetail = item => {
   router.push({
     name: 'des',
     params: {
-      fid: item.id,
+      fid: item.fid,
     },
   });
 };
@@ -85,21 +88,6 @@ const toDetail = item => {
   top: 0;
   width: 100%;
 }
-.photoList {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-}
-.cover_photo {
-  height: 320px;
-  width: 320px;
-  padding: 10px;
-  border-radius: 10px;
-  border: 1px solid #ded2d2;
-}
-.cover_photo img {
-  width: 100%;
+.Sitem {
 }
 </style>

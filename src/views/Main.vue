@@ -18,21 +18,53 @@
 <script setup>
 import { ElConfigProvider } from 'element-plus';
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs';
-import { ref, computed } from 'vue';
+import { ref, computed, inject, onMounted } from 'vue';
+
+const $api = inject('$api');
 
 const locale = ref(zhCn);
 const monthValue = ref('');
 const listSize = ref(60);
 const showList = ref(8);
+const photoList = ref([]);
 
-const photoList = computed(() => {
-  return Array(1000)
-    .fill('')
-    .map((item, index) => ({
-      id: index,
-      content: '列表项内容' + index,
-    }));
+onMounted(() => {
+  //获取全部图片信息
+  getFlowersMsg();
 });
+
+const getFlowersMsg = async () => {
+  const res = await $api.photo.photoDetails();
+  if (res.status === 200) {
+    photoList.value = groupArray(res.data.flowers);
+  }
+  console.log(photoList.value);
+};
+//分隔数组函数
+const groupArray = array => {
+  if (array.length <= 3) {
+    return;
+  }
+  for (let i = 0; i < array.length; i++) {
+    if (array[i].furl.includes(';')) {
+      array[i].furl = array[i].furl.split(';')[0];
+    }
+  }
+  const result = [];
+  for (let i = 0; i < array.length; i += 3) {
+    result.push(array.slice(i, i + 3));
+  }
+
+  return result;
+};
+// const photoList = computed(() => {
+//   return Array(1000)
+//     .fill('')
+//     .map((item, index) => ({
+//       id: index,
+//       content: '列表项内容' + index,
+//     }));
+// });
 </script>
 
 <style scoped>

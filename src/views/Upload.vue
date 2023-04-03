@@ -239,18 +239,21 @@ const createReader = function (file) {
 const uploadPhoto = async file => {
   const pObj = toRefs(state.uploadFormData.photoObj);
   const formdata = new FormData();
-
-  formdata.set('flower', file);
+  formdata.set('uid', 1);
+  formdata.set('fdesp', 'add');
+  formdata.set('ftitle', 'asdas');
+  formdata.set('faddress', file.padress);
   for (let i = 0; i < pObj.length; i++) {
     formdata.append('images', pObj[i].value);
   }
   const res = await $api.photo.addPhoto(formdata);
-  if (res.status === 200) {
+  if (res.status === 201) {
     ElMessage({
       showClose: true,
       message: '上传成功',
       type: 'success',
     });
+    resetForm('uploadForm');
   } else {
     ElMessage({
       showClose: true,

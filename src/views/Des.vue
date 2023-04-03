@@ -14,9 +14,9 @@
         <aside class="detail-author">
           <section class="headImg-info">
             <el-avatar @click="toInformation" style="cursor: pointer">
-              {{ state.currentPhoto.uname }}
+              {{ currentPhoto.uid }}
             </el-avatar>
-            <h2>{{ state.currentPhoto.uname }}</h2>
+            <h2>{{ currentPhoto.uid }}</h2>
           </section>
           <section>
             <el-button color="#626aef" round @click="toFollow">
@@ -24,13 +24,15 @@
             </el-button>
           </section>
           <section class="msg">
-            <span>标题</span>
-            <span>景点介绍</span>
+            <span>标题:{{ currentPhoto.ftitle }}</span>
+            <br />
+            <span>景点介绍:{{ currentPhoto.fdesp }}</span>
           </section>
           <section class="address">
-            <span>地址:重庆市渝北区</span>
-            <el-icon><Position /></el-icon>
+            <span>地址:{{ currentPhoto.faddress }}</span>
+            <el-icon style="cursor: pointer" @click="goAddress"><Position /></el-icon>
           </section>
+          <div class="data" title="投稿时间">投稿时间:</div>
         </aside>
       </div>
     </div>
@@ -45,15 +47,17 @@
       />
     </div>
 
-    <div class="photo-content">
+    <el-dialog v-model="dialogVisible" destroy-on-close center title="导航路线">
+      <Map :adressMsg="currentPhoto.faddress"></Map>
+    </el-dialog>
+    <!-- <div class="photo-content">
       <div class="content-inner">
         <h2>name</h2>
         <div class="intro">alalalala</div>
         <div class="tags"></div>
         <ul class="star"></ul>
-        <div class="data" title="投稿时间">uptime</div>
       </div>
-    </div>
+    </div> -->
 
     <div class="comment">
       <div class="comment-inner">
@@ -99,12 +103,12 @@
         </div>
         <div class="au-saider">
           <div class="author">
-            <h3>发布者</h3>
+            <h3>周边推荐</h3>
             <div style="display: flex">
               <el-avatar @click="toInformation" style="cursor: pointer">
-                {{ state.currentPhoto.uname }}
+                {{ currentPhoto.uid }}
               </el-avatar>
-              <h2>{{ state.currentPhoto.uname }}</h2>
+              <h2>{{ currentPhoto.uid }}</h2>
             </div>
           </div>
         </div>
@@ -120,14 +124,15 @@ import { Position } from '@element-plus/icons-vue';
 import { mainStore } from '@/store';
 import { useRouter, useRoute } from 'vue-router';
 
+const dialogVisible = ref(false);
 let textareaValue = ref('');
 const router = useRouter();
 const route = useRoute();
 const store = mainStore();
 const $api = inject('$api');
 
+const currentPhoto = ref({}); //保存当前页面信息
 const state = reactive({
-  currentPhoto: {},
   comment: [
     {
       user: {
@@ -146,6 +151,7 @@ onBeforeUnmount(() => {
 onMounted(() => {
   // getPhotoComment(50)
   console.log(route.params);
+  getPhotoDetail(route.params.fid);
 });
 
 const getPhotoComment = async id => {
@@ -155,11 +161,13 @@ const getPhotoComment = async id => {
   //   }
 };
 
-const getPhotoDetail = async pid => {
-  //   const res = await $api.photo.photoDetail(pid);
-  //   if (res.status === 200) {
-  //     state.currentPhoto = res.data.user;
-  //  }
+//获取页面信息
+const getPhotoDetail = async fid => {
+  const res = await $api.photo.photoDetail(fid);
+  if (res.status === 200) {
+    currentPhoto.value = res.data.data;
+  }
+  console.log(currentPhoto.value);
 };
 //跳转作者详情页
 const toInformation = () => {
@@ -280,12 +288,21 @@ const toFollow = async () => {
   }
   getFollowMsg(followuid);
 };
+//导航
+const goAddress = () => {
+  const adres = currentPhoto.value.faddress || '';
+  dialogVisible.value = true;
+  console.log(adres);
+};
 </script>
 
 <style scoped>
+.container {
+  padding: 0 50px;
+}
 .photoDetail {
   display: flex;
-  padding-bottom: 7px;
+  padding: 20px 0;
   height: 450px;
 }
 
@@ -301,14 +318,15 @@ const toFollow = async () => {
 
 .rightMsg {
   flex: 1;
-  padding-right: 12px;
+  padding-left: 14px;
+  border-left: 1px solid #ded2d2;
 }
 
 .photo-action {
   display: flex;
   justify-content: space-between;
   padding: 2px 10px;
-  border-bottom: 1px solid;
+  border-bottom: 1px solid #ded2d2;
 }
 
 .photo-action .showImg {
@@ -333,7 +351,7 @@ const toFollow = async () => {
 .photo-content {
   padding: 36px 16px;
   display: flex;
-  border-bottom: 1px solid;
+  border-bottom: 1px solid #d8d8d8;
 }
 
 .photo-content .content-inner {
