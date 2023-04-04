@@ -51,7 +51,7 @@ const goView = () => {
     policy: oMap.mymap.DrivingPolicy.LEAST_TIME,
   });
   const points = [
-    { keyword: '重庆北站', city: '全国' },
+    { keyword: '重庆理工大学两江校区', city: '全国' },
     { keyword: adressMsg.value, city: '全国' },
   ];
 

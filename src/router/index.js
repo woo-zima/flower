@@ -12,14 +12,14 @@ const routes = [
     component: () => import('@/views/Upload.vue'),
   },
   {
-    path: '/map',
-    name: 'map',
-    component: () => import('@/components/Map.vue'),
-  },
-  {
     path: '/des/:fid',
     name: 'des',
     component: () => import('@/views/Des.vue'),
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: () => import('@/views/NotFound.vue'),
   },
 ];
 

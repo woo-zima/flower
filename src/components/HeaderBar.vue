@@ -5,7 +5,6 @@
         <div class="g_btn">
           <el-button type="primary" @click="goHome">主页</el-button>
           <el-button type="primary" @click="goUpLoad">上传</el-button>
-          <el-button type="primary" @click="goMap">地图</el-button>
         </div>
       </el-col>
       <el-col class="header-info" :lg="10" :sm="10" :xs="8">
@@ -133,11 +132,6 @@ const goUpLoad = () => {
 const goHome = () => {
   router.push({
     path: `/`,
-  });
-};
-const goMap = () => {
-  router.push({
-    path: `/map`,
   });
 };
 

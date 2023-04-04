@@ -4,8 +4,8 @@
       <div class="leftImg">
         <div class="block text-center">
           <el-carousel trigger="click" height="450px">
-            <el-carousel-item v-for="item in 4" :key="item">
-              <img src="http://wphoto.top/FoR0aljkHucHnqcVjK7Cm8e5oX_-" style="width: 100%" />
+            <el-carousel-item v-for="item in urls" :key="item">
+              <img :src="'http://localhost:3000/files/' + item" style="width: 100%" />
             </el-carousel-item>
           </el-carousel>
         </div>
@@ -132,6 +132,7 @@ const store = mainStore();
 const $api = inject('$api');
 
 const currentPhoto = ref({}); //保存当前页面信息
+const urls = ref([]);
 const state = reactive({
   comment: [
     {
@@ -154,6 +155,11 @@ onMounted(() => {
   getPhotoDetail(route.params.fid);
 });
 
+// const urls = computed(() => {
+//   console.log(currentPhoto.value);
+//   return currentPhoto.value.furl.spilt(';');
+// });
+
 const getPhotoComment = async id => {
   //   const res = await $api.comment.getPhotoComment(id);
   //   if (res) {
@@ -166,8 +172,9 @@ const getPhotoDetail = async fid => {
   const res = await $api.photo.photoDetail(fid);
   if (res.status === 200) {
     currentPhoto.value = res.data.data;
+    urls.value = currentPhoto.value.furl.split(';');
   }
-  console.log(currentPhoto.value);
+  console.log(urls.value);
 };
 //跳转作者详情页
 const toInformation = () => {

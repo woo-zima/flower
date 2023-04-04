@@ -2,7 +2,13 @@
   <el-config-provider :locale="locale">
     <div class="main_container Main">
       <div class="block">
-        <el-date-picker v-model="monthValue" type="month" placeholder="选择花期月份" />
+        <el-date-picker
+          v-model="monthValue"
+          clearable
+          type="month"
+          placeholder="选择花期月份"
+          @change="changeMonth"
+        />
       </div>
       <div class="photo_c">
         <VirtualPhotoList
@@ -24,7 +30,7 @@ const $api = inject('$api');
 
 const locale = ref(zhCn);
 const monthValue = ref('');
-const listSize = ref(60);
+const listSize = ref(400);
 const showList = ref(8);
 const photoList = ref([]);
 
@@ -40,31 +46,49 @@ const getFlowersMsg = async () => {
   }
   console.log(photoList.value);
 };
+//根据时间获取图片信息
+const getFollowByTime = async moon => {
+  const res = await $api.photo.photoDetailByTime(moon);
+  if (res.status === 200) {
+    photoList.value = groupArray(res.data.data);
+  }
+  console.log(photoList.value);
+};
 //分隔数组函数
 const groupArray = array => {
-  if (array.length <= 3) {
-    return;
-  }
+  const result = [];
   for (let i = 0; i < array.length; i++) {
     if (array[i].furl.includes(';')) {
       array[i].furl = array[i].furl.split(';')[0];
     }
   }
-  const result = [];
-  for (let i = 0; i < array.length; i += 3) {
-    result.push(array.slice(i, i + 3));
-  }
 
+  if (array.length <= 3) {
+    for (let i = 0; i < array.length; i += 3) {
+      result.push(array.slice(i, array.length));
+    }
+  } else {
+    for (let i = 0; i < array.length; i += 3) {
+      result.push(array.slice(i, i + 3));
+    }
+  }
   return result;
 };
-// const photoList = computed(() => {
-//   return Array(1000)
-//     .fill('')
-//     .map((item, index) => ({
-//       id: index,
-//       content: '列表项内容' + index,
-//     }));
-// });
+const changeMonth = () => {
+  // console.log(monthValue.value);
+  console.log(forMate(monthValue.value));
+  getFollowByTime(forMate(monthValue.value));
+};
+
+const forMate = date => {
+  let year = date.getFullYear();
+  year = (year + '').slice(2, 4);
+  let month = date.getMonth() + 1;
+  if ((month + '').length == 1) {
+    month = '0' + month;
+  }
+  return year + month;
+};
 </script>
 
 <style scoped>

@@ -26,3 +26,13 @@ export function photoDetail(fid) {
     },
   });
 }
+//通过月份获取图片
+export function photoDetailByTime(moon) {
+  return instance({
+    url: '/flower/getFlowerByTime',
+    method: 'get',
+    params: {
+      moon,
+    },
+  });
+}

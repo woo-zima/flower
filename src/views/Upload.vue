@@ -55,23 +55,33 @@
       <div class="previewP">
         <div class="upRight setP">
           <el-form ref="uploadForm" :model="state.uploadFormData" :rules="rules">
-            <el-form-item prop="pname" class="scroll-itme" label="标题">
+            <el-form-item prop="ptitle" class="scroll-itme" label="标题">
               <el-input
-                v-model="state.uploadFormData.pname"
+                v-model="state.uploadFormData.ptitle"
                 clearable
                 class="P_input"
                 size="large"
-                placeholder="Please Input"
+                placeholder="起个吸引人的标题吧"
               />
             </el-form-item>
 
-            <el-form-item class="scroll-itme" prop="tag" label="简介">
-              <el-checkbox-group v-model="state.uploadFormData.tag">
-                <el-checkbox-button label="风景" name="type" />
-                <el-checkbox-button label="动漫" name="type" />
-                <el-checkbox-button label="暗" name="type" />
-                <el-checkbox-button label="人物" name="type" />
-              </el-checkbox-group>
+            <el-form-item class="scroll-itme" prop="moon" label="月份">
+              <el-input
+                v-model="state.uploadFormData.moon"
+                clearable
+                class="P_input"
+                size="large"
+                placeholder="赏花月份"
+              />
+            </el-form-item>
+            <el-form-item class="scroll-itme" prop="pdescribe" label="简介">
+              <el-input
+                v-model="state.uploadFormData.pdescribe"
+                clearable
+                class="P_input"
+                size="large"
+                placeholder="说说你对景点的看法。"
+              />
             </el-form-item>
           </el-form>
           <MapPlaceInput ref="mapPlaceInput"></MapPlaceInput>
@@ -79,10 +89,6 @@
             <el-button type="primary" @click="onSubmit(uploadForm)">上传</el-button>
             <el-button @click="resetForm(uploadForm)">取消</el-button>
           </div>
-        </div>
-        <div class="setP">
-          <span class="preview" @click="showPreview">查看预览</span>
-          <span class="preview" @click="showPreview">保存为草稿</span>
         </div>
       </div>
     </div>
@@ -111,8 +117,8 @@ const state = reactive({
   uploadUrl: 'http://up-as0.qiniup.com',
   uploadFormData: {
     pname: '',
-    tag: [],
-    pdescribe: [],
+    moon: '',
+    pdescribe: '',
     padress: '',
     uptime: new Date(),
     photoObj: [],
@@ -131,8 +137,9 @@ const state = reactive({
 });
 const $api = inject('$api');
 const rules = reactive({
-  pname: [{ required: true, message: '请输入作品标题', trigger: 'blur' }],
-  tag: [{ required: true, message: '请选择Tag', trigger: 'blur' }],
+  ptitle: [{ required: true, message: '请输入作品标题', trigger: 'blur' }],
+  moon: [{ required: true, message: '请输入月份', trigger: 'blur' }],
+  pdescribe: [{ required: true, message: '请发布看法', trigger: 'blur' }],
 });
 onMounted(() => {
   //getToken();
@@ -144,12 +151,6 @@ const handleRemove = file => {
   });
 
   uploadFile.value.handleRemove(file);
-  // for (const i = 0; i < uld.length; i++) {
-  //   if (uld[i]['url'] === file.url) {
-  //     uld.splice(i, 1);
-  //   }
-  // }
-
   console.log(state.uploadFormData.photoObj);
 };
 
@@ -162,20 +163,8 @@ const handleDownload = file => {
   console.log(file);
 };
 
-async function getToken() {
-  const { data } = await $api.user.getQiNiuToken();
-  if (data) {
-    // console.log(data);
-    state.uploadData.token = data.data.uploadToken;
-  }
-}
-
 const changFile = (file, fileList) => {
-  console.log(file, fileList);
   state.uploadFormData.photoObj.push(file.raw);
-  console.log(toRefs(state.uploadFormData.photoObj)[0].value);
-
-  // createReader(file.raw);
   const isPNG = file.raw.type === 'image/png';
   const isJPEG = file.raw.type === 'image/jpeg';
   const isJPG = file.raw.type === 'image/jpg';
@@ -214,34 +203,16 @@ const handleAvatarSuccess = (res, file, fileList) => {
 
 const beforeAvatarUpload = file => {
   console.log('before', file, typeof file);
-  // createReader(file);
-
-  // imgFile.value = file;
-
-  // this.uploadData.key = `upload_pic_${new Date().getTime()}_${file.name}`;
 };
 
-const createReader = function (file) {
-  let reader = new FileReader();
-  reader.onload = function (e) {
-    let image = new Image();
-    image.onload = function () {
-      state.uploadFormData.pwidth = this.width;
-      state.uploadFormData.pheight = this.height;
-    };
-    image.src = e.target.result;
-
-    state.previewSrc.push(e.target.result);
-  };
-  reader.readAsDataURL(file);
-};
 //封装上传图片
 const uploadPhoto = async file => {
   const pObj = toRefs(state.uploadFormData.photoObj);
   const formdata = new FormData();
   formdata.set('uid', 1);
-  formdata.set('fdesp', 'add');
-  formdata.set('ftitle', 'asdas');
+  formdata.set('fdesp', file.pdescribe);
+  formdata.set('ftitle', file.ptitle);
+  formdata.set('fmoon', file.moon);
   formdata.set('faddress', file.padress);
   for (let i = 0; i < pObj.length; i++) {
     formdata.append('images', pObj[i].value);
@@ -292,29 +263,6 @@ const resetForm = formEl => {
   if (!formEl) return;
   formEl.resetFields();
   mapPlaceInput.value.deletePlace();
-};
-const showPreview = () => {
-  if (state.previewSrc.length === 0) {
-    ElMessage({
-      showClose: true,
-      message: '请选择图片再预览',
-      type: 'info',
-    });
-    return;
-  }
-
-  state.dialogConfig.showDialog = true;
-  state.dialogConfig.dialogItem.pname = state.uploadMsgForm.pname;
-  state.dialogConfig.dialogItem.previewSrc = state.previewSrc.map(i => i);
-};
-const loadRemove = (file, files) => {
-  for (const i = 0; i < files.length; i++) {
-    if (files[i]['url'] === file.url) {
-      files.splice(i, 1);
-    }
-  }
-  console.log(files);
-  state.previewSrc = [];
 };
 </script>
 
