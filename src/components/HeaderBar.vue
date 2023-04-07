@@ -3,8 +3,8 @@
     <el-row justify="space-around" style="width: 100%">
       <el-col class="header-info" :lg="10" :sm="10" :xs="8">
         <div class="g_btn">
-          <el-button type="primary" @click="goHome">主页</el-button>
-          <el-button type="primary" @click="goUpLoad">上传</el-button>
+          <el-button @click="goHome">主页</el-button>
+          <el-button @click="goUpLoad">上传</el-button>
         </div>
       </el-col>
       <el-col class="header-info" :lg="10" :sm="10" :xs="8">
@@ -125,6 +125,14 @@ const querySearch = async (queryString, cb) => {
 };
 //跳转上传页
 const goUpLoad = () => {
+  if (!store.showUser) {
+    ElMessage({
+      showClose: true,
+      message: '请先登录吧！',
+      type: 'info',
+    });
+    return;
+  }
   router.push({
     path: `/upload`,
   });
@@ -202,15 +210,14 @@ const logOut = () => {
 }
 
 .button-text {
-  width: 72px;
-  height: 30px;
   line-height: 28px;
   text-align: center;
   text-decoration: none;
-  color: #fff;
+  color: #e06666;
   font-size: 16px;
   margin: 0 12px 0 0;
-  background: #202d40;
+  border-radius: 5px;
+  background: #fff;
   border-radius: 2px;
   text-decoration: none;
   padding: 5px 12px;

@@ -1,8 +1,5 @@
 <template>
   <div id="main">
-    <!-- <Map></Map> -->
-    <!-- <MapInput></MapInput> -->
-    <!-- <Photo /> -->
     <el-container class="page-container" style="overflow: hidden">
       <el-header>
         <HeaderBar />
@@ -12,11 +9,12 @@
         <router-view></router-view>
       </el-main>
     </el-container>
+    <Enter></Enter>
   </div>
 </template>
 
 <script setup>
-import Map from '@/components/Map.vue';
+import Enter from '@/components/Enter/index.vue';
 </script>
 
 <style>
@@ -44,5 +42,10 @@ a {
 }
 .el-header {
   padding: 0;
+}
+.el-button {
+  background-color: #fff;
+  border: 1px solid;
+  color: #e06666;
 }
 </style>

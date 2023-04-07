@@ -161,10 +161,11 @@ onMounted(() => {
 // });
 
 const getPhotoComment = async id => {
-  //   const res = await $api.comment.getPhotoComment(id);
-  //   if (res) {
-  //     state.comment = [...res.data];
-  //   }
+  const res = await $api.comment.getPhotoComment(id);
+  if (res) {
+    console.log(res);
+    state.comment = [...res.data];
+  }
 };
 
 //获取页面信息
@@ -259,13 +260,13 @@ const sbumitTextarea = () => {
 const postComment = async () => {
   const commentData = {
     uid: store.userDeail.uid,
-    pid: props.dialogConfig.dialogItem.pid,
-    content: textareaValue.value,
+    fid: route.params.fid,
+    pcontent: textareaValue.value,
   };
   const res = await $api.comment.addPhotoComment(commentData);
   if (res.status === 200) {
     textareaValue.value = '';
-    getPhotoComment(props.dialogConfig.dialogItem.pid);
+    getPhotoComment(route.params.fid);
     ElMessage({
       showClose: true,
       message: res.data,

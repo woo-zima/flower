@@ -9,6 +9,9 @@ const routes = [
   {
     path: '/upload',
     name: 'upload',
+    meta: {
+      Auth: true,
+    },
     component: () => import('@/views/Upload.vue'),
   },
   {
