@@ -209,7 +209,7 @@ const beforeAvatarUpload = file => {
 const uploadPhoto = async file => {
   const pObj = toRefs(state.uploadFormData.photoObj);
   const formdata = new FormData();
-  formdata.set('uid', 1);
+  formdata.set('uid', store.userDeail.uid);
   formdata.set('fdesp', file.pdescribe);
   formdata.set('ftitle', file.ptitle);
   formdata.set('fmoon', file.moon);

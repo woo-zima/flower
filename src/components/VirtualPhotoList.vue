@@ -10,8 +10,12 @@
         <div v-for="i in item" @click="toDetail(i)" class="sitem_it">
           <img :src="'http://localhost:3000/files/' + i.furl" alt="" />
           <div class="ifooter">
-            {{ i.ftitle }}
-            <span>赏花时间{{ i.fmoon }}月</span>
+            <el-avatar style="cursor: pointer">name</el-avatar>
+            <span class="fname">name</span>
+            <span class="title">
+              {{ i.ftitle }}
+            </span>
+            <span class="time">赏花时间{{ i.fmoon }}月</span>
           </div>
         </div>
       </div>
@@ -93,25 +97,39 @@ const toDetail = item => {
   margin-top: 5px;
 }
 .Sitem {
+  width: 100%;
   display: flex;
   flex-direction: row;
   justify-content: start;
-  margin-bottom: 17px;
 }
 .Sitem .sitem_it {
-  height: 100%;
+  width: 100%;
   padding: 5px;
   border-radius: 3px;
   cursor: pointer;
-  border: 1px solid #d8d8d8;
 }
 .Sitem .sitem_it img {
+  width: 100%;
   height: 90%;
+  border-radius: 10px;
+  object-fit: cover;
 }
 .ifooter {
-  text-align: center;
+  position: relative;
 }
-.ifooter span {
-  font-size: 10px;
+.ifooter .fname {
+  position: absolute;
+  left: 41px;
+  top: 5px;
+}
+.ifooter .title {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, 0px);
+}
+.ifooter .time {
+  font-size: 12px;
+  float: right;
 }
 </style>

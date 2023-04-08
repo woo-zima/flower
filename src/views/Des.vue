@@ -14,9 +14,9 @@
         <aside class="detail-author">
           <section class="headImg-info">
             <el-avatar @click="toInformation" style="cursor: pointer">
-              {{ currentPhoto.uid }}
+              {{ currentPhoto.user?.uname || '' }}
             </el-avatar>
-            <h2>{{ currentPhoto.uid }}</h2>
+            <h2>{{ currentPhoto.user?.uname || '' }}</h2>
           </section>
           <section>
             <el-button color="#626aef" round @click="toFollow">
@@ -47,7 +47,13 @@
       />
     </div>
 
-    <el-dialog v-model="dialogVisible" destroy-on-close center title="导航路线">
+    <el-dialog
+      v-model="dialogVisible"
+      destroy-on-close
+      center
+      title="导航路线"
+      style="margin: 30px auto"
+    >
       <Map :adressMsg="currentPhoto.faddress"></Map>
     </el-dialog>
     <!-- <div class="photo-content">
@@ -86,7 +92,7 @@
             <!-- 评论列表 -->
             <div class="comment-list">
               <ul>
-                <li class="comment-item" v-for="(item, index) in state.comment" :key="index">
+                <li class="comment-item" v-for="item in state.comment" :key="item.plid">
                   <a>
                     <el-avatar @click="toContentInformation(item.user.uid)" style="cursor: pointer">
                       {{ item.user.uname }}
@@ -94,7 +100,7 @@
                   </a>
                   <div>
                     <h2>{{ item.user.uname }}</h2>
-                    <div class="comment-text">{{ item.content }}</div>
+                    <div class="comment-text">{{ item.pcontent }}</div>
                   </div>
                 </li>
               </ul>
@@ -119,7 +125,6 @@
 
 <script setup>
 import { computed, inject, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
-import { randomColorToDom } from '@/tool/randColorToDom.js';
 import { Position } from '@element-plus/icons-vue';
 import { mainStore } from '@/store';
 import { useRouter, useRoute } from 'vue-router';
@@ -150,9 +155,8 @@ onBeforeUnmount(() => {
   textareaValue.value = '';
 });
 onMounted(() => {
-  // getPhotoComment(50)
-  console.log(route.params);
   getPhotoDetail(route.params.fid);
+  getPhotoComment(route.params.fid);
 });
 
 // const urls = computed(() => {
@@ -163,8 +167,7 @@ onMounted(() => {
 const getPhotoComment = async id => {
   const res = await $api.comment.getPhotoComment(id);
   if (res) {
-    console.log(res);
-    state.comment = [...res.data];
+    state.comment = [...res.data.comments];
   }
 };
 
@@ -174,8 +177,8 @@ const getPhotoDetail = async fid => {
   if (res.status === 200) {
     currentPhoto.value = res.data.data;
     urls.value = currentPhoto.value.furl.split(';');
+    console.log(currentPhoto.value);
   }
-  console.log(urls.value);
 };
 //跳转作者详情页
 const toInformation = () => {
@@ -220,15 +223,7 @@ const showSrc = computed(() => {
 //   { deep: true }
 // );
 //dialogMain获取关注
-const getFollowMsg = async id => {
-  //   if (!store.userDeail.uid) return;
-  //   const res = await $api.user.getFollowMsg(store.userDeail.uid);
-  //   if (res) {
-  //     state.followFl = res.data.find(item => {
-  //       return item.followuid === id;
-  //     });
-  //   }
-};
+const getFollowMsg = async id => {};
 //校验
 const vaildCommentText = () => {
   if (textareaValue.value === '' || textareaValue.value === null) {
@@ -263,39 +258,16 @@ const postComment = async () => {
     fid: route.params.fid,
     pcontent: textareaValue.value,
   };
-  const res = await $api.comment.addPhotoComment(commentData);
-  if (res.status === 200) {
+  const res = await $api.comment.addComment(commentData);
+  console.log(res);
+  if (res.data.status === 200) {
     textareaValue.value = '';
     getPhotoComment(route.params.fid);
-    ElMessage({
-      showClose: true,
-      message: res.data,
-      type: 'success',
-    });
   }
 };
 
 //DialogMain关注or取关
-const toFollow = async () => {
-  if (!store.userDeail.uid) {
-    ElMessage({
-      showClose: true,
-      message: '你未登录!',
-      type: 'error',
-    });
-    return;
-  }
-  if (props.dialogConfig.dialogItem.uptime == '') return;
-  let uid = store.userDeail.uid,
-    followuid = props.dialogConfig.dialogItem.upid;
-  const { linkFollow, cancelFollow } = useFollow(uid, followuid);
-  if (!state.followFl) {
-    await linkFollow();
-  } else {
-    await cancelFollow();
-  }
-  getFollowMsg(followuid);
-};
+const toFollow = async () => {};
 //导航
 const goAddress = () => {
   const adres = currentPhoto.value.faddress || '';
@@ -356,38 +328,12 @@ const goAddress = () => {
   height: 18px;
 }
 
-.photo-content {
-  padding: 36px 16px;
-  display: flex;
-  border-bottom: 1px solid #d8d8d8;
+.msg {
+  font-size: 18px;
+  padding: 4px 0;
 }
 
-.photo-content .content-inner {
-  width: 100%;
-}
-
-.content-inner .tags {
-  display: flex;
-  color: #ff1e1e;
-  line-height: 18px;
-  margin: 16px 0;
-}
-
-.dialogMain .comment {
-  background-color: #fafafa;
-  box-sizing: border-box;
-  display: inline-block;
-  padding: 48px 80px;
-  /* text-align: center; */
-  width: 100%;
-}
 @media screen and (max-width: 875px) {
-  .dialogMain .comment {
-    padding: 24px 40px;
-  }
-  .photo-content {
-    padding: 8px 5px;
-  }
   .comment-list ul {
     margin: 0;
     padding: 0;
