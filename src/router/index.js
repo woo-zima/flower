@@ -20,6 +20,11 @@ const routes = [
     component: () => import('@/views/Des.vue'),
   },
   {
+    path: '/searchAll',
+    name: 'search',
+    component: () => import('@/views/SearchAll.vue'),
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: () => import('@/views/NotFound.vue'),
@@ -29,6 +34,15 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+  // scrollBehavior(to, from, savedPosition) {
+  //   console.log(to);
+  //   // return 期望滚动到哪个的位置
+  //   if (savedPosition) {
+  //     return savedPosition;
+  //   } else {
+  //     return { top: 0 };
+  //   }
+  // },
 });
 
 router.beforeEach(async (to, from, next) => {

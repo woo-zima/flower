@@ -25,6 +25,8 @@
 import { ElConfigProvider } from 'element-plus';
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs';
 import { ref, computed, inject, onMounted } from 'vue';
+//分隔数组函数
+import { groupArray } from '../tool/groupArray';
 
 const $api = inject('$api');
 
@@ -44,7 +46,6 @@ const getFlowersMsg = async () => {
   if (res.status === 200) {
     photoList.value = groupArray(res.data.flowers);
   }
-  console.log(photoList.value);
 };
 //根据时间获取图片信息
 const getFollowByTime = async moon => {
@@ -52,31 +53,12 @@ const getFollowByTime = async moon => {
   if (res.status === 200) {
     photoList.value = groupArray(res.data.data);
   }
-  console.log(photoList.value);
-};
-//分隔数组函数
-const groupArray = array => {
-  const result = [];
-  for (let i = 0; i < array.length; i++) {
-    if (array[i].furl.includes(';')) {
-      array[i].furl = array[i].furl.split(';')[0];
-    }
-  }
-
-  if (array.length <= 3) {
-    for (let i = 0; i < array.length; i += 3) {
-      result.push(array.slice(i, array.length));
-    }
-  } else {
-    for (let i = 0; i < array.length; i += 3) {
-      result.push(array.slice(i, i + 3));
-    }
-  }
-  return result;
 };
 const changeMonth = () => {
-  // console.log(monthValue.value);
-  console.log(forMate(monthValue.value));
+  if (!monthValue.value) {
+    getFlowersMsg();
+    return;
+  }
   getFollowByTime(forMate(monthValue.value));
 };
 

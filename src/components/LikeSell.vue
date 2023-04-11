@@ -1,0 +1,82 @@
+<template>
+  <div class="likeContainer">
+    <div class="likeList">
+      <div class="innerList" v-for="item in likeList" @click="toDetail(item)">
+        <el-avatar class="avatar">{{ item.user.uname }}</el-avatar>
+        <img :src="'http://localhost:3000/files/' + item.furl" alt="" />
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { defineProps, inject, reactive, ref, toRefs, watch } from 'vue';
+import { fliterArray } from '../tool/groupArray';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+const $api = inject('$api');
+const props = defineProps({
+  likeDes: {
+    type: Object,
+  },
+});
+const { likeDes } = toRefs(props);
+
+const likeList = ref([]);
+
+watch(
+  () => likeDes,
+  newVal => {
+    getLikeSell(newVal);
+  },
+  { deep: true }
+);
+
+const getLikeSell = async obj => {
+  const { ftag, fid } = obj.value;
+  console.log(ftag, fid);
+  const res = await $api.photo.getFlowerByTag(ftag, fid);
+  if (res) {
+    likeList.value = fliterArray(res.data.data);
+  }
+  //   console.log(obj.value.fid);
+};
+const toDetail = item => {
+  console.log(router);
+  router.push({
+    name: 'des',
+    params: {
+      fid: item.fid,
+    },
+  });
+};
+</script>
+
+<style scoped>
+.likeContainer {
+  position: relative;
+}
+.likeContainer .likeList {
+  width: 100%;
+}
+.innerList {
+  position: relative;
+  width: 100%;
+  border-radius: 5px;
+  cursor: pointer;
+  max-height: 280px;
+}
+.innerList .avatar {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+}
+.innerList img {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  max-height: 280px;
+  border-radius: 5px;
+}
+</style>

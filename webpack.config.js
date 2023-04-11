@@ -9,9 +9,10 @@ module.exports = {
   mode: 'development',
   entry: './src/main.js',
   output: {
-    path: path.resolve(__dirname, 'dist'),
-    filename: 'js/bundle.js',
-    clean: true, //“/dist”文件夹清理
+    path: path.join(__dirname, 'dist'),
+    filename: 'bundle.js',
+    publicPath: '/',
+    clean: true, // /dist文件夹清理
   },
   resolve: {
     extensions: ['.js', '.json', '.vue'],

@@ -56,14 +56,6 @@
     >
       <Map :adressMsg="currentPhoto.faddress"></Map>
     </el-dialog>
-    <!-- <div class="photo-content">
-      <div class="content-inner">
-        <h2>name</h2>
-        <div class="intro">alalalala</div>
-        <div class="tags"></div>
-        <ul class="star"></ul>
-      </div>
-    </div> -->
 
     <div class="comment">
       <div class="comment-inner">
@@ -109,13 +101,8 @@
         </div>
         <div class="au-saider">
           <div class="author">
-            <h3>周边推荐</h3>
-            <div style="display: flex">
-              <el-avatar @click="toInformation" style="cursor: pointer">
-                {{ currentPhoto.uid }}
-              </el-avatar>
-              <h2>{{ currentPhoto.uid }}</h2>
-            </div>
+            <h3>兴趣推荐</h3>
+            <LikeSell :likeDes="likeDes"></LikeSell>
           </div>
         </div>
       </div>
@@ -124,14 +111,13 @@
 </template>
 
 <script setup>
-import { computed, inject, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
+import { computed, inject, onBeforeUnmount, onMounted, reactive, ref } from 'vue';
 import { Position } from '@element-plus/icons-vue';
 import { mainStore } from '@/store';
-import { useRouter, useRoute } from 'vue-router';
+import { useRoute } from 'vue-router';
 
 const dialogVisible = ref(false);
 let textareaValue = ref('');
-const router = useRouter();
 const route = useRoute();
 const store = mainStore();
 const $api = inject('$api');
@@ -151,6 +137,13 @@ const state = reactive({
   followFl: [],
   likeMsg: {},
 });
+const likeDes = computed(() => {
+  return {
+    ftag: currentPhoto.value.ftag,
+    fid: currentPhoto.value.fid,
+  };
+});
+
 onBeforeUnmount(() => {
   textareaValue.value = '';
 });
@@ -158,11 +151,6 @@ onMounted(() => {
   getPhotoDetail(route.params.fid);
   getPhotoComment(route.params.fid);
 });
-
-// const urls = computed(() => {
-//   console.log(currentPhoto.value);
-//   return currentPhoto.value.furl.spilt(';');
-// });
 
 const getPhotoComment = async id => {
   const res = await $api.comment.getPhotoComment(id);
@@ -177,53 +165,9 @@ const getPhotoDetail = async fid => {
   if (res.status === 200) {
     currentPhoto.value = res.data.data;
     urls.value = currentPhoto.value.furl.split(';');
-    console.log(currentPhoto.value);
+    // console.log(currentPhoto.value);
   }
 };
-//跳转作者详情页
-const toInformation = () => {
-  //   if (props.dialogConfig.dialogItem.uptime == '') return;
-  //   let uid = props.dialogConfig.dialogItem.upid || 0;
-  //   router.push({
-  //     path: `/users/Means/${uid}/up`,
-  //   });
-};
-//跳转作者详情页
-const toContentInformation = id => {
-  //   if (props.dialogConfig.dialogItem.uptime == '') return;
-  //   console.log(id);
-  //   router.push({
-  //     path: `/users/Means/${id}/up`,
-  //   });
-};
-
-const showSrc = computed(() => {
-  //   if (props.dialogConfig.dialogItem.purl) {
-  //     return 'http://wphoto.top/' + props.dialogConfig.dialogItem.purl;
-  //   } else {
-  //     return props.dialogConfig.dialogItem.previewSrc[0];
-  //   }
-});
-//获取更新
-// watch(
-//   () => props.dialogConfig.dialogItem,
-//   (newVal, oldVal) => {
-//     state.likeMsg = newVal;
-//     nextTick(() => {
-//       randomColorToDom('.container');
-//     });
-//     state.srcList = newVal.previewSrc || ['http://wphoto.top/' + newVal.purl];
-//     console.log(state.srcList);
-//     if (newVal.uptime != '') {
-//       getPhotoComment(newVal.pid);
-//       getPhotoDetail(newVal.pid);
-//       getFollowMsg(newVal.upid);
-//     }
-//   },
-//   { deep: true }
-// );
-//dialogMain获取关注
-const getFollowMsg = async id => {};
 //校验
 const vaildCommentText = () => {
   if (textareaValue.value === '' || textareaValue.value === null) {
@@ -274,6 +218,8 @@ const goAddress = () => {
   dialogVisible.value = true;
   console.log(adres);
 };
+const toContentInformation = () => {};
+const toInformation = () => {};
 </script>
 
 <style scoped>

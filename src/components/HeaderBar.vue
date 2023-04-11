@@ -8,15 +8,15 @@
         </div>
       </el-col>
       <el-col class="header-info" :lg="10" :sm="10" :xs="8">
-        <el-autocomplete
-          v-model="state.params.key"
-          :debounce="300"
-          :fetch-suggestions="querySearch"
-          :maxlength="40"
-          class="input-with-select"
+        <el-input
+          type="text"
+          class="searchInput"
+          v-model="state.query.keywords"
+          clearable
+          :prefix-icon="Search"
           placeholder="搜索"
-          @select="handleSearch"
-        ></el-autocomplete>
+          @change="handleSearch"
+        ></el-input>
       </el-col>
 
       <el-col class="header-info" :lg="4" :sm="4" :xs="4">
@@ -53,6 +53,7 @@
 </template>
 
 <script setup>
+import { Search } from '@element-plus/icons-vue';
 import { inject, reactive, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { mainStore } from '@/store';
@@ -61,13 +62,12 @@ const router = useRouter();
 const $api = inject('$api');
 const store = mainStore();
 const state = reactive({
-  params: {
-    key: '',
+  query: {
+    keywords: '',
   },
   user: {
     userId: '',
   },
-  queryList: [],
 });
 
 onMounted(() => {});
@@ -104,25 +104,6 @@ const clickMenu = type => {
       break;
   }
 };
-const querySearch = async (queryString, cb) => {
-  state.queryList = [];
-  if (queryString.length > 0) {
-    const queryParams = { queryValue: queryString };
-    const { data, status } = await $api.photo.getKeyWorlds(queryParams);
-    if (status === 200) {
-      // state.queryList = data.map((i) => {
-      state.queryList.push({
-        value: data.pdescribe.split(' ')[0],
-      });
-      // })
-      cb(state.queryList);
-    } else {
-      cb(state.queryList);
-    }
-  } else {
-    cb(state.queryList);
-  }
-};
 //跳转上传页
 const goUpLoad = () => {
   if (!store.showUser) {
@@ -143,11 +124,10 @@ const goHome = () => {
   });
 };
 
-const handleSearch = item => {
-  console.log(item);
+const handleSearch = () => {
   router.replace({
-    path: '/keyPhotos',
-    query: { key: item.value },
+    path: '/searchAll',
+    query: { keywords: state.query.keywords },
   });
 };
 
@@ -193,16 +173,6 @@ const logOut = () => {
   box-shadow: rgb(0 0 0 / 20%) 0px -2px 6px;
 }
 
-.input-with-select {
-  padding-top: 12px;
-  width: 40vw;
-  background-color: #fff;
-}
-
-.input-with-select:hover {
-  background-color: rgba(0, 0, 0, 0.08);
-}
-
 .header-info {
   display: flex;
   justify-content: center;
@@ -222,5 +192,8 @@ const logOut = () => {
   text-decoration: none;
   padding: 5px 12px;
   cursor: pointer;
+}
+.searchInput {
+  max-width: 220px;
 }
 </style>

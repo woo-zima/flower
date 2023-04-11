@@ -80,8 +80,28 @@
                 clearable
                 class="P_input"
                 size="large"
+                type="textarea"
+                :rows="5"
                 placeholder="说说你对景点的看法。"
               />
+            </el-form-item>
+            <el-form-item class="scroll-item" prop="ptag" label="花品种">
+              <el-select
+                v-model="state.uploadFormData.ptag"
+                filterable
+                clearable
+                allow-create
+                default-first-option
+                :reserve-keyword="false"
+                placeholder="选择/输入新建花的品种"
+              >
+                <el-option
+                  v-for="item in tagOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
             </el-form-item>
           </el-form>
           <MapPlaceInput ref="mapPlaceInput"></MapPlaceInput>
@@ -119,22 +139,13 @@ const state = reactive({
     pname: '',
     moon: '',
     pdescribe: '',
+    ptag: '',
     padress: '',
     uptime: new Date(),
     photoObj: [],
   },
-
-  dialogConfig: {
-    showDialog: false,
-    dialogItem: {
-      uptime: '',
-      pname: '',
-      previewSrc: [],
-    },
-    preview: false,
-  },
-  previewSrc: [],
 });
+const tagOptions = ref([]);
 const $api = inject('$api');
 const rules = reactive({
   ptitle: [{ required: true, message: '请输入作品标题', trigger: 'blur' }],
@@ -143,8 +154,21 @@ const rules = reactive({
 });
 onMounted(() => {
   //getToken();
+  getTagOptions();
 });
-
+//获取品种类型
+const getTagOptions = async () => {
+  const res = await $api.photo.getTagOptions();
+  if (res.status == 200) {
+    res.data.forEach((item, i) => {
+      tagOptions.value.push({ value: item.tdesp, label: item.tdesp });
+    });
+  } else {
+    tagOptions.value.push({ value: null, label: '暂无数据' });
+  }
+  tagOptions.value.splice(9, tagOptions.value.length);
+};
+//删除照片项
 const handleRemove = file => {
   state.uploadFormData.photoObj = state.uploadFormData.photoObj.filter(item => {
     return item.uid !== file.uid;
@@ -213,6 +237,7 @@ const uploadPhoto = async file => {
   formdata.set('fdesp', file.pdescribe);
   formdata.set('ftitle', file.ptitle);
   formdata.set('fmoon', file.moon);
+  formdata.set('ftag', file.ptag);
   formdata.set('faddress', file.padress);
   for (let i = 0; i < pObj.length; i++) {
     formdata.append('images', pObj[i].value);

@@ -36,3 +36,32 @@ export function photoDetailByTime(moon) {
     },
   });
 }
+
+//获取品种类型
+export function getTagOptions() {
+  return instance({
+    url: '/tag',
+    method: 'get',
+  });
+}
+//按花品种/赏花地址搜索
+export function getFlowerBykey(key) {
+  return instance({
+    url: '/flower/getFlowerBykey',
+    method: 'get',
+    params: {
+      keyword: key,
+    },
+  });
+}
+//兴趣推荐
+export function getFlowerByTag(ftag, fid) {
+  return instance({
+    url: '/flower/getFlowerByTag',
+    method: 'get',
+    params: {
+      ftag,
+      fid,
+    },
+  });
+}
