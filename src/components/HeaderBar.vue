@@ -23,11 +23,14 @@
         <div>
           <div v-if="store.showUser">
             <el-dropdown @command="clickMenu">
-              <div>
-                <el-avatar fit="cover" shape="square">
-                  {{ store.userDeail.uname }}
-                </el-avatar>
-              </div>
+              <el-avatar
+                style="cursor: pointer"
+                fit="cover"
+                src="http://wphoto.top/FvqbmQo3qldO7dsZXI98AkkJ16RC"
+              >
+                {{ store.userDeail.uname }}
+              </el-avatar>
+
               <template #dropdown>
                 <el-dropdown-menu>
                   <el-dropdown-item
@@ -139,7 +142,7 @@ const setModel = () => {
 const toInformation = () => {
   let uid = store.userDeail.uid || 0;
   router.push({
-    path: `/users/Means/${uid}/up`,
+    path: `/info/${uid}`,
     query: new Date(),
   });
 };

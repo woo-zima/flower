@@ -12,9 +12,10 @@
 <script setup>
 import { defineProps, inject, reactive, ref, toRefs, watch } from 'vue';
 import { fliterArray } from '../tool/groupArray';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 
 const router = useRouter();
+const route = useRoute();
 const $api = inject('$api');
 const props = defineProps({
   likeDes: {
@@ -35,7 +36,6 @@ watch(
 
 const getLikeSell = async obj => {
   const { ftag, fid } = obj.value;
-  console.log(ftag, fid);
   const res = await $api.photo.getFlowerByTag(ftag, fid);
   if (res) {
     likeList.value = fliterArray(res.data.data);
@@ -43,12 +43,9 @@ const getLikeSell = async obj => {
   //   console.log(obj.value.fid);
 };
 const toDetail = item => {
-  console.log(router);
+  console.log(route);
   router.push({
-    name: 'des',
-    params: {
-      fid: item.fid,
-    },
+    path: `/des/${item.fid}`,
   });
 };
 </script>

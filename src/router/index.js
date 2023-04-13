@@ -20,6 +20,11 @@ const routes = [
     component: () => import('@/views/Des.vue'),
   },
   {
+    path: '/info/:uid',
+    name: 'info',
+    component: () => import('@/views/Info.vue'),
+  },
+  {
     path: '/searchAll',
     name: 'search',
     component: () => import('@/views/SearchAll.vue'),

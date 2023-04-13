@@ -64,16 +64,19 @@
                 placeholder="起个吸引人的标题吧"
               />
             </el-form-item>
-
-            <el-form-item class="scroll-itme" prop="moon" label="月份">
-              <el-input
-                v-model="state.uploadFormData.moon"
-                clearable
-                class="P_input"
-                size="large"
-                placeholder="赏花月份"
-              />
-            </el-form-item>
+            <el-config-provider :locale="locale">
+              <el-form-item class="scroll-itme" prop="moon" label="月份">
+                <el-date-picker
+                  v-model="state.uploadFormData.moon"
+                  value-format="YYYYMMDD"
+                  type="date"
+                  placeholder="赏花月份"
+                  size="large"
+                  :disabledDate="disabledDate"
+                  @change="changeDate"
+                />
+              </el-form-item>
+            </el-config-provider>
             <el-form-item class="scroll-itme" prop="pdescribe" label="简介">
               <el-input
                 v-model="state.uploadFormData.pdescribe"
@@ -121,9 +124,13 @@
 </template>
 
 <script setup>
+import { ElConfigProvider } from 'element-plus';
+import zhCn from 'element-plus/dist/locale/zh-cn.mjs';
 import { computed, inject, onMounted, reactive, ref, toRefs } from 'vue';
 import { Delete, Download, Plus, ZoomIn } from '@element-plus/icons-vue';
 import { mainStore } from '@/store';
+
+const locale = ref(zhCn);
 
 const dialogImageUrl = ref('');
 const dialogVisible = ref(false);
@@ -152,6 +159,7 @@ const rules = reactive({
   moon: [{ required: true, message: '请输入月份', trigger: 'blur' }],
   pdescribe: [{ required: true, message: '请发布看法', trigger: 'blur' }],
 });
+
 onMounted(() => {
   //getToken();
   getTagOptions();
@@ -185,6 +193,14 @@ const handlePictureCardPreview = file => {
 
 const handleDownload = file => {
   console.log(file);
+};
+//设置当前日期之后不能选
+const disabledDate = time => {
+  return time.getTime() > Date.now();
+};
+
+const changeDate = () => {
+  console.log(state.uploadFormData.moon);
 };
 
 const changFile = (file, fileList) => {

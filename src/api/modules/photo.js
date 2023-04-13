@@ -65,3 +65,24 @@ export function getFlowerByTag(ftag, fid) {
     },
   });
 }
+
+//获取用户上传的
+export function getFlowerByUser(uid) {
+  return instance({
+    url: '/flower/getFlowerByUser',
+    method: 'get',
+    params: {
+      uid,
+    },
+  });
+}
+//获取用户收藏的
+export function getFlowerLikeByUser(uid) {
+  return instance({
+    url: '/collect/getLikePByUid',
+    method: 'get',
+    params: {
+      uid,
+    },
+  });
+}

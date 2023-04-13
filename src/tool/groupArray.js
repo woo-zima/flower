@@ -26,3 +26,12 @@ export const fliterArray = array => {
   }
   return array;
 };
+
+export const fliterFlowerArray = array => {
+  for (let i = 0; i < array.length; i++) {
+    if (array[i].flower.furl.includes(';')) {
+      array[i].flower.furl = array[i].flower.furl.split(';')[0];
+    }
+  }
+  return array;
+};

@@ -20,7 +20,7 @@
           </section>
           <section>
             <el-button color="#626aef" round @click="toFollow">
-              {{ !state.followFl ? '关注' : '已关注' }}
+              {{ !state.isCollect ? '收藏' : '已收藏' }}
             </el-button>
           </section>
           <section class="msg">
@@ -32,7 +32,7 @@
             <span>地址:{{ currentPhoto.faddress }}</span>
             <el-icon style="cursor: pointer" @click="goAddress"><Position /></el-icon>
           </section>
-          <div class="data" title="投稿时间">投稿时间:</div>
+          <div class="data" title="投稿时间">赏花时间:{{ currentPhoto.fmoon }}</div>
         </aside>
       </div>
     </div>
@@ -111,31 +111,24 @@
 </template>
 
 <script setup>
-import { computed, inject, onBeforeUnmount, onMounted, reactive, ref } from 'vue';
+import { computed, inject, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
 import { Position } from '@element-plus/icons-vue';
 import { mainStore } from '@/store';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 const dialogVisible = ref(false);
 let textareaValue = ref('');
 const route = useRoute();
+const router = useRouter();
 const store = mainStore();
 const $api = inject('$api');
 
 const currentPhoto = ref({}); //保存当前页面信息
 const urls = ref([]);
 const state = reactive({
-  comment: [
-    {
-      user: {
-        uname: 'asd',
-      },
-      content: 'SAA',
-    },
-  ],
+  comment: [],
   srcList: [],
-  followFl: [],
-  likeMsg: {},
+  isCollect: false,
 });
 const likeDes = computed(() => {
   return {
@@ -151,6 +144,20 @@ onMounted(() => {
   getPhotoDetail(route.params.fid);
   getPhotoComment(route.params.fid);
 });
+
+// watch(
+//   () => route.params,
+//   newVal => {
+//     router.push({
+//       params: {
+//         fid: newVal.fid,
+//       },
+//     });
+//   },
+//   {
+//     deep: true,
+//   }
+// );
 
 const getPhotoComment = async id => {
   const res = await $api.comment.getPhotoComment(id);
@@ -210,13 +217,21 @@ const postComment = async () => {
   }
 };
 
-//DialogMain关注or取关
-const toFollow = async () => {};
+//作品收藏
+const toFollow = async () => {
+  if (!store.userDeail.uname) {
+    ElMessage({
+      showClose: true,
+      message: '你还未登录！',
+      type: 'info',
+    });
+    return;
+  }
+};
 //导航
 const goAddress = () => {
   const adres = currentPhoto.value.faddress || '';
   dialogVisible.value = true;
-  console.log(adres);
 };
 const toContentInformation = () => {};
 const toInformation = () => {};
