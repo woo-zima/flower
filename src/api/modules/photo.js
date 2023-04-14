@@ -86,3 +86,26 @@ export function getFlowerLikeByUser(uid) {
     },
   });
 }
+//获取是否收藏图片
+export function isCollect(uid, fid) {
+  return instance({
+    url: 'collect/isCollect',
+    method: 'get',
+    params: {
+      uid,
+      fid,
+    },
+  });
+}
+
+//更新收藏
+export function updateLikeById(uid, fid) {
+  return instance({
+    url: '/collect/addLike',
+    method: 'post',
+    data: {
+      uid,
+      fid,
+    },
+  });
+}

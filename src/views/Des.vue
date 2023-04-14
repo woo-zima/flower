@@ -20,7 +20,7 @@
           </section>
           <section>
             <el-button color="#626aef" round @click="toFollow">
-              {{ !state.isCollect ? '收藏' : '已收藏' }}
+              {{ !isCollect ? '收藏' : '已收藏' }}
             </el-button>
           </section>
           <section class="msg">
@@ -115,6 +115,7 @@ import { computed, inject, onBeforeUnmount, onMounted, reactive, ref, watch } fr
 import { Position } from '@element-plus/icons-vue';
 import { mainStore } from '@/store';
 import { useRoute, useRouter } from 'vue-router';
+import useLike from '@/tool/useLike.js';
 
 const dialogVisible = ref(false);
 let textareaValue = ref('');
@@ -125,10 +126,11 @@ const $api = inject('$api');
 
 const currentPhoto = ref({}); //保存当前页面信息
 const urls = ref([]);
+//是否关注
+const isCollect = ref(false);
 const state = reactive({
   comment: [],
   srcList: [],
-  isCollect: false,
 });
 const likeDes = computed(() => {
   return {
@@ -174,6 +176,7 @@ const getPhotoDetail = async fid => {
     urls.value = currentPhoto.value.furl.split(';');
     // console.log(currentPhoto.value);
   }
+  getFollow();
 };
 //校验
 const vaildCommentText = () => {
@@ -217,6 +220,17 @@ const postComment = async () => {
   }
 };
 
+//获取是否收藏
+const getFollow = async () => {
+  if (!store.userDeail.uid) return;
+  let uid = store.userDeail.uid,
+    fid = currentPhoto.value.fid;
+  const res = await $api.photo.isCollect(uid, fid);
+  if (res.status === 200) {
+    isCollect.value = res.data;
+  }
+};
+
 //作品收藏
 const toFollow = async () => {
   if (!store.userDeail.uname) {
@@ -227,6 +241,14 @@ const toFollow = async () => {
     });
     return;
   }
+  let uid = store.userDeail.uid,
+    fid = currentPhoto.value.fid;
+  const res = await $api.photo.updateLikeById(uid, fid);
+  if (res) {
+    console.log(res);
+  }
+
+  getFollow();
 };
 //导航
 const goAddress = () => {
