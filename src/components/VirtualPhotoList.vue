@@ -15,12 +15,12 @@
             <span class="title">
               {{ i.ftitle }}
             </span>
-            <span class="time">赏花时间{{ i.fmoon }}月</span>
+            <span class="time">赏花时间:{{ fliterMoon(i.fmoon) }}</span>
           </div>
         </div>
       </div>
     </div>
-    <div v-else>暂无资源。。</div>
+    <div v-else><el-empty description="暂无资源" /></div>
   </div>
 </template>
 
@@ -47,6 +47,7 @@ const router = useRouter();
 const { photoList, listSize, showList } = toRefs(props);
 const container = ref(null); // 页面 container 节点
 const showData = computed(() => photoList.value); // 最终筛选出的要展示的数据
+
 watch(
   () => photoList,
   newVal => {
@@ -63,6 +64,9 @@ const toDetail = item => {
       fid: item.fid,
     },
   });
+};
+const fliterMoon = moon => {
+  return moon.slice(0, 4) + '年' + moon.substring(4, 6) + '月' + moon.substring(6, 8) + '日';
 };
 </script>
 

@@ -1,4 +1,5 @@
 export const groupArray = array => {
+  // if(array)
   const result = [];
   for (let i = 0; i < array.length; i++) {
     if (array[i].furl.includes(';')) {

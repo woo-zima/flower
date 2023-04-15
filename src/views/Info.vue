@@ -118,6 +118,13 @@ const toDes = fid => {
 .el-tabs__active-bar {
   background-color: #ff1e1e;
 }
+.Means {
+  padding: 20px 0 0 50px;
+}
+.Means .msgMain {
+  font-size: 20px;
+  color: #fbc;
+}
 .upContainer {
   position: relative;
   margin: 0 20px;
@@ -128,6 +135,7 @@ const toDes = fid => {
 }
 .upContainer .in {
   height: 305px;
+  max-width: 460px;
   border-radius: 5px;
   min-width: calc((100% - 20px) / 3);
 }

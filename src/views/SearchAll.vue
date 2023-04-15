@@ -37,7 +37,7 @@ watch(
 const getFlowersMsg = async () => {
   const key = route.query.keywords || '';
   const res = await $api.photo.getFlowerBykey(key);
-  if (res.status === 200) {
+  if (res.data.status === 200) {
     photoList.value = groupArray(res.data.data);
   }
 };

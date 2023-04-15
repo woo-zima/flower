@@ -1,7 +1,7 @@
 <template>
   <el-config-provider :locale="locale">
     <div class="main_container Main">
-      <div class="block">
+      <div class="block" style="margin: 14px 0 0px 21px">
         <el-date-picker
           v-model="monthValue"
           clearable

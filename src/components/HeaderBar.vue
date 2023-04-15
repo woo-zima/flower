@@ -128,6 +128,14 @@ const goHome = () => {
 };
 
 const handleSearch = () => {
+  if (!store.userDeail.uname) {
+    ElMessage({
+      showClose: true,
+      message: '未登录!',
+      type: 'info',
+    });
+    return;
+  }
   router.replace({
     path: '/searchAll',
     query: { keywords: state.query.keywords },
