@@ -127,7 +127,7 @@ const toDes = fid => {
 }
 .upContainer {
   position: relative;
-  margin: 0 20px;
+  margin: 0 20px 40px 20px;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -144,5 +144,6 @@ const toDes = fid => {
   height: 100%;
   object-fit: cover;
   border-radius: 5px;
+  cursor: pointer;
 }
 </style>

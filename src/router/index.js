@@ -7,6 +7,11 @@ const routes = [
     component: () => import('@/views/Main.vue'),
   },
   {
+    path: '/nearby',
+    name: 'nearby',
+    component: () => import('@/views/Nearby.vue'),
+  },
+  {
     path: '/upload',
     name: 'upload',
     meta: {
