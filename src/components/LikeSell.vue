@@ -2,7 +2,9 @@
   <div class="likeContainer">
     <div class="likeList">
       <div class="innerList" v-for="item in likeList" @click="toDetail(item)">
-        <el-avatar class="avatar">{{ item.user.uname }}</el-avatar>
+        <el-avatar class="avatar" src="http://wphoto.top/FvqbmQo3qldO7dsZXI98AkkJ16RC">
+          {{ item.user.uname }}
+        </el-avatar>
         <img :src="'http://localhost:3000/files/' + item.furl" alt="" />
       </div>
     </div>
@@ -15,7 +17,6 @@ import { fliterArray } from '../tool/groupArray';
 import { useRouter, useRoute } from 'vue-router';
 
 const router = useRouter();
-const route = useRoute();
 const $api = inject('$api');
 const props = defineProps({
   likeDes: {
@@ -43,7 +44,7 @@ const getLikeSell = async obj => {
   //   console.log(obj.value.fid);
 };
 const toDetail = item => {
-  console.log(route);
+  console.log(item);
   router.push({
     path: `/des/${item.fid}`,
   });

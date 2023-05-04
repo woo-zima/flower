@@ -65,12 +65,13 @@
               />
             </el-form-item>
             <el-config-provider :locale="locale">
-              <el-form-item class="scroll-itme" prop="moon" label="月份">
+              <el-form-item class="scroll-itme" prop="moon" label="日期">
                 <el-date-picker
                   v-model="state.uploadFormData.moon"
+                  clearable
                   value-format="YYYYMMDD"
                   type="date"
-                  placeholder="赏花月份"
+                  placeholder="赏花日期"
                   size="large"
                   :disabledDate="disabledDate"
                   @change="changeDate"
@@ -117,7 +118,8 @@
     </div>
   </div>
   <el-dialog v-model="dialogVisible">
-    <img style="width: 100%" w-full :src="dialogImageUrl" alt="Preview Image" />
+    <p>上传成功</p>
+    <span @click="goHome">前往首页</span>
   </el-dialog>
   <!-- <Cropper :cropperInfo="cropperInfo" />
   <DialogMain :dialogConfig="state.dialogConfig" /> -->
@@ -126,16 +128,20 @@
 <script setup>
 import { ElConfigProvider } from 'element-plus';
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs';
-import { computed, inject, onMounted, reactive, ref, toRefs } from 'vue';
+import { inject, onMounted, reactive, ref, toRefs } from 'vue';
 import { Delete, Download, Plus, ZoomIn } from '@element-plus/icons-vue';
 import { mainStore } from '@/store';
+import { useRouter } from 'vue-router';
 
 const locale = ref(zhCn);
 
 const dialogImageUrl = ref('');
 const dialogVisible = ref(false);
+
 const disabled = ref(false);
 const mapPlaceInput = ref(null); //获取子组件实例
+
+const router = useRouter();
 const store = mainStore();
 const uploadForm = ref();
 const uploadFile = ref(null);
@@ -260,10 +266,13 @@ const uploadPhoto = async file => {
   }
   const res = await $api.photo.addPhoto(formdata);
   if (res.status === 201) {
-    ElMessage({
-      showClose: true,
-      message: '上传成功',
-      type: 'success',
+    ElMessageBox.alert('上传成功！', {
+      confirmButtonText: '去查看',
+      showClose: false,
+    }).then(() => {
+      router.push({
+        path: '/',
+      });
     });
     resetForm('uploadForm');
   } else {
@@ -304,6 +313,12 @@ const resetForm = formEl => {
   if (!formEl) return;
   formEl.resetFields();
   mapPlaceInput.value.deletePlace();
+};
+
+const goHome = () => {
+  router.push({
+    path: '/',
+  });
 };
 </script>
 

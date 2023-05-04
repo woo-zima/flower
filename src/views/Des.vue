@@ -24,9 +24,12 @@
             </el-button>
           </section>
           <section class="msg">
-            <span>标题:{{ currentPhoto.ftitle }}</span>
+            <span class="first_span">标题:{{ currentPhoto.ftitle }}</span>
             <br />
-            <span>景点介绍:{{ currentPhoto.fdesp }}</span>
+            <span class="last_span">
+              景点介绍:
+              <p v-for="item in desp" :key="item">{{ item }}</p>
+            </span>
           </section>
           <section class="address">
             <span>地址:{{ currentPhoto.faddress }}</span>
@@ -40,7 +43,7 @@
     <div class="photo-action">
       <el-image
         class="showImg"
-        src=""
+        :src="state.srcList[0]"
         :preview-src-list="state.srcList"
         :initial-index="0"
         fit="cover"
@@ -83,6 +86,9 @@
 
             <!-- 评论列表 -->
             <div class="comment-list">
+              <div v-if="state.comment.length == 0" style="padding-top: 10px; text-align: center">
+                暂无评论...
+              </div>
               <ul>
                 <li class="comment-item" v-for="item in state.comment" :key="item.plid">
                   <a>
@@ -115,7 +121,6 @@ import { computed, inject, onBeforeUnmount, onMounted, reactive, ref, watch } fr
 import { Position } from '@element-plus/icons-vue';
 import { mainStore } from '@/store';
 import { useRoute, useRouter } from 'vue-router';
-import useLike from '@/tool/useLike.js';
 
 const dialogVisible = ref(false);
 let textareaValue = ref('');
@@ -126,6 +131,7 @@ const $api = inject('$api');
 
 const currentPhoto = ref({}); //保存当前页面信息
 const urls = ref([]);
+const desp = ref([]);
 //是否关注
 const isCollect = ref(false);
 const state = reactive({
@@ -147,20 +153,15 @@ onMounted(() => {
   getPhotoComment(route.params.fid);
 });
 
-// watch(
-//   () => route.params,
-//   newVal => {
-//     router.push({
-//       params: {
-//         fid: newVal.fid,
-//       },
-//     });
-//   },
-//   {
-//     deep: true,
-//   }
-// );
-
+watch(
+  () => route.params,
+  newVal => {
+    if (newVal.fid) {
+      getPhotoDetail(newVal.fid);
+      getPhotoComment(newVal.fid);
+    }
+  }
+);
 const getPhotoComment = async id => {
   const res = await $api.comment.getPhotoComment(id);
   if (res) {
@@ -174,9 +175,15 @@ const getPhotoDetail = async fid => {
   if (res.status === 200) {
     currentPhoto.value = res.data.data;
     urls.value = currentPhoto.value.furl.split(';');
-    // console.log(currentPhoto.value);
+    desp.value = currentPhoto.value.fdesp.split('\n');
+    state.srcList = currentPhoto.value.furl.split(';').map(item => {
+      return 'http://localhost:3000/files/' + item;
+    });
+    // console.log(state.srcList);
+    //console.log(currentPhoto.value);
   }
   getFollow();
+  // console.log(state.comment.length);
 };
 //校验
 const vaildCommentText = () => {
@@ -255,13 +262,21 @@ const goAddress = () => {
   const adres = currentPhoto.value.faddress || '';
   dialogVisible.value = true;
 };
+
+const fliterMoon = moon => {
+  return moon.substring(0, 4) + '年' + moon.substring(4, 6) + '月' + moon.substring(6, 8) + '日';
+};
 const toContentInformation = () => {};
 const toInformation = () => {};
 </script>
 
 <style scoped>
+::-webkit-scrollbar {
+  width: 0px;
+}
 .container {
   padding: 0 50px;
+  background-color: #f3f3f3;
 }
 .photoDetail {
   display: flex;
@@ -283,13 +298,13 @@ const toInformation = () => {};
   flex: 1;
   padding-left: 14px;
   border-left: 1px solid #ded2d2;
+  overflow-y: scroll;
 }
 
 .photo-action {
   display: flex;
   justify-content: space-between;
   padding: 2px 10px;
-  border-bottom: 1px solid #ded2d2;
 }
 
 .photo-action .showImg {
@@ -313,9 +328,15 @@ const toInformation = () => {};
 
 .msg {
   font-size: 18px;
-  padding: 4px 0;
+  padding: 17px 0;
 }
-
+.msg .first_span {
+  font-size: 20px;
+}
+.msg .last_span {
+  display: inline-block;
+  padding-top: 10px;
+}
 @media screen and (max-width: 875px) {
   .comment-list ul {
     margin: 0;
@@ -351,8 +372,7 @@ const toInformation = () => {};
 .comment-inner .au-comment {
   flex: 2;
   background-color: #fff;
-  border: 1px solid #eee;
-  border-radius: 2px;
+  border-radius: 10px;
   box-sizing: border-box;
   margin: 0 10px 10px 0;
   padding: 17px 20px;
@@ -405,7 +425,7 @@ const toInformation = () => {};
 .au-saider .author {
   background-color: #fff;
   border: 1px solid #eee;
-  border-radius: 2px;
+  border-radius: 10px;
   padding: 0 20px 20px 20px;
 }
 .author div h2 {

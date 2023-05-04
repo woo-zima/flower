@@ -82,10 +82,6 @@ const MenuList = computed(() => {
       handler: 'information',
     },
     {
-      name: '设置',
-      handler: 'setting',
-    },
-    {
       name: '退出',
       handler: 'logOut',
       divided: true,
@@ -96,9 +92,6 @@ const clickMenu = type => {
   switch (type) {
     case 'information':
       toInformation();
-      break;
-    case 'setting':
-      setModel();
       break;
     case 'logOut':
       logOut();
@@ -142,11 +135,6 @@ const handleSearch = () => {
   });
 };
 
-const setModel = () => {
-  router.push({
-    path: `/setUp`,
-  });
-};
 const toInformation = () => {
   let uid = store.userDeail.uid || 0;
   router.push({

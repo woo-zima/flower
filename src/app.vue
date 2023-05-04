@@ -6,7 +6,7 @@
       </el-header>
       <el-main>
         <!-- vue-page-stack  -->
-        <router-view></router-view>
+        <router-view :key="route.fullPath"></router-view>
       </el-main>
     </el-container>
     <Enter></Enter>
@@ -15,6 +15,8 @@
 
 <script setup>
 import Enter from '@/components/Enter/index.vue';
+import { useRoute } from 'vue-router';
+const route = useRoute();
 </script>
 
 <style>

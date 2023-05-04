@@ -10,7 +10,9 @@
         <div v-for="i in item" :key="i.fid" @click="toDetail(i)" class="sitem_it">
           <img :src="'http://localhost:3000/files/' + i.furl" alt="" />
           <div class="ifooter">
-            <el-avatar style="cursor: pointer">{{ i.user.uname }}</el-avatar>
+            <el-avatar style="cursor: pointer" src="http://wphoto.top/FvqbmQo3qldO7dsZXI98AkkJ16RC">
+              {{ i.user.uname }}
+            </el-avatar>
             <span class="fname">{{ i.user.uname }}</span>
             <span class="title">
               {{ i.ftitle }}
@@ -66,7 +68,7 @@ const toDetail = item => {
   });
 };
 const fliterMoon = moon => {
-  return moon.slice(0, 4) + '年' + moon.substring(4, 6) + '月' + moon.substring(6, 8) + '日';
+  return moon.substring(0, 4) + '年' + moon.substring(4, 6) + '月' + moon.substring(6, 8) + '日';
 };
 </script>
 
@@ -92,6 +94,7 @@ const fliterMoon = moon => {
 .Sitem .sitem_it {
   width: 100%;
   max-width: 33%;
+  min-width: 430px;
   padding: 5px;
   border-radius: 3px;
   cursor: pointer;

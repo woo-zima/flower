@@ -22,6 +22,10 @@
             :key="item.fid"
             @click="toDes(item.fid)"
           >
+            <div class="set" v-on:mouseenter="showThis" v-on:mouseleave="removeThis"></div>
+            <ul class="setinner" v-on:mouseenter="showThis" v-on:mouseleave="removeThis">
+              <li @click.stop="deleteUp(item)">删除</li>
+            </ul>
             <img :src="'http://localhost:3000/files/' + item.furl" alt="" />
           </div>
         </div>
@@ -30,6 +34,7 @@
         <el-empty description="暂无上传" />
       </div>
     </el-tab-pane>
+
     <el-tab-pane label="我的收藏" name="like">
       <div v-if="state.upLikePhotoList.length > 0">
         <div class="upContainer">
@@ -92,6 +97,7 @@ const getUpLists = async () => {
 };
 const getLikeLists = async () => {
   const res = await $api.photo.getFlowerLikeByUser(route.params.uid || 0);
+  console.log(res);
   if (res.data.status === 200) {
     state.upLikePhotoList = fliterFlowerArray(res.data.data);
   }
@@ -105,6 +111,36 @@ const toDes = fid => {
       fid,
     },
   });
+};
+//鼠标移入事件
+const showThis = e => {
+  const el = e.target.parentNode.children[1];
+  el.classList.add('active');
+};
+//鼠标移出事件
+const removeThis = e => {
+  const el = e.target.parentNode.children[1];
+  el.classList.remove('active');
+};
+
+const deleteUp = item => {
+  ElMessageBox.confirm('您确定要删除？', 'delete', {
+    distinguishCancelAndClose: true,
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+  })
+    .then(() => {
+      console.log(item.fid);
+      const res = $api.photo.deletePhoto(item.fid);
+      console.log(res);
+      ElMessage({
+        type: 'info',
+        message: '删除成功',
+      });
+    })
+    .catch(action => {
+      console.log(action);
+    });
 };
 </script>
 
@@ -134,6 +170,7 @@ const toDes = fid => {
   gap: 10px;
 }
 .upContainer .in {
+  position: relative;
   height: 305px;
   max-width: 460px;
   border-radius: 5px;
@@ -145,5 +182,32 @@ const toDes = fid => {
   object-fit: cover;
   border-radius: 5px;
   cursor: pointer;
+}
+.upContainer .in .set {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  right: 5px;
+  cursor: pointer;
+}
+.upContainer .in .setinner {
+  position: absolute;
+  right: 0;
+  background-color: #fff;
+  border-radius: 2px;
+  padding: 10px 5px;
+  cursor: pointer;
+  display: none;
+}
+.upContainer .in .setinner li:hover {
+  color: #ff1e1e;
+}
+.upContainer .in .set::before {
+  content: '...';
+  color: #fff;
+  font-size: 20px;
+}
+.upContainer .in .setinner.active {
+  display: block;
 }
 </style>

@@ -13,6 +13,9 @@ export function photoDetails() {
   return instance({
     url: '/flower',
     method: 'get',
+    params: {
+      grade: 1,
+    },
   });
 }
 
@@ -105,6 +108,19 @@ export function updateLikeById(uid, fid) {
     method: 'post',
     data: {
       uid,
+      fid,
+    },
+  });
+}
+//用户删除自己上传的
+export function deletePhoto(fid) {
+  return instance({
+    url: '/flower/deleteByFid',
+    method: 'post',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: {
       fid,
     },
   });
