@@ -22,6 +22,33 @@
             <el-button color="#626aef" round @click="toFollow">
               {{ !isCollect ? '收藏' : '已收藏' }}
             </el-button>
+            <el-dialog v-model="TagVisible" title="加入收藏" width="30%" @close="handleClose">
+              <div class="tagBox">
+                <ul ref="ulElement" @click="addTagActive">
+                  <li
+                    v-for="item in tagList"
+                    :key="item.name"
+                    :class="[item.name == checkTag ? 'active' : '']"
+                  >
+                    {{ item.name }}
+                  </li>
+                  <li @click="addTag">+</li>
+                </ul>
+              </div>
+              <el-dialog v-model="addTagVisible" title="新建标签" width="250px">
+                <input type="text" v-model="addTagName" />
+                <span class="dialog-footer">
+                  <el-button @click="addTagVisible = false">取消</el-button>
+                  <el-button type="primary" @click="addTagSubmit">确认</el-button>
+                </span>
+              </el-dialog>
+              <template #footer>
+                <span class="dialog-footer">
+                  <el-button @click="TagVisible = false">取消</el-button>
+                  <el-button type="primary" @click="addTagHandle">添加</el-button>
+                </span>
+              </template>
+            </el-dialog>
           </section>
           <section class="msg">
             <span class="first_span">标题:{{ currentPhoto.ftitle }}</span>
@@ -117,27 +144,34 @@
 </template>
 
 <script setup>
-import { computed, inject, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
+import { computed, inject, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
 import { Position } from '@element-plus/icons-vue';
 import { mainStore } from '@/store';
 import { useRoute, useRouter } from 'vue-router';
 
 const dialogVisible = ref(false);
+const TagVisible = ref(false);
+const addTagVisible = ref(false);
 let textareaValue = ref('');
 const route = useRoute();
-const router = useRouter();
+
 const store = mainStore();
 const $api = inject('$api');
 
 const currentPhoto = ref({}); //保存当前页面信息
 const urls = ref([]);
 const desp = ref([]);
+const checkTag = ref('');
 //是否关注
 const isCollect = ref(false);
 const state = reactive({
   comment: [],
   srcList: [],
 });
+//用户收藏标签
+const tagList = ref([]);
+//用户新增Tag
+const addTagName = ref('');
 const likeDes = computed(() => {
   return {
     ftag: currentPhoto.value.ftag,
@@ -179,11 +213,8 @@ const getPhotoDetail = async fid => {
     state.srcList = currentPhoto.value.furl.split(';').map(item => {
       return 'http://localhost:3000/files/' + item;
     });
-    // console.log(state.srcList);
-    //console.log(currentPhoto.value);
   }
   getFollow();
-  // console.log(state.comment.length);
 };
 //校验
 const vaildCommentText = () => {
@@ -248,14 +279,107 @@ const toFollow = async () => {
     });
     return;
   }
-  let uid = store.userDeail.uid,
-    fid = currentPhoto.value.fid;
-  const res = await $api.photo.updateLikeById(uid, fid);
-  if (res) {
-    console.log(res);
+  //已经关注的事件
+  if (isCollect.value) {
+    ElMessageBox.confirm('确定要取消收藏吗?', 'disLike', {
+      distinguishCancelAndClose: true,
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+    })
+      .then(async () => {
+        const addTagForm = {
+          uid: store.userDeail.uid,
+          fid: currentPhoto.value.fid,
+        };
+        const res = await $api.photo.updateLikeById(addTagForm);
+        if (res) {
+          console.log(res);
+        }
+        getFollow();
+      })
+      .catch(action => {
+        console.log(action);
+      });
+  } else {
+    //打开分类弹窗
+    TagVisible.value = true;
+    getTagsByUser();
   }
+};
+//获取用户收藏标签
+const getTagsByUser = async () => {
+  const res = await $api.user.getTagByUid(store.userDeail.uid);
+  if (res.data) {
+    const arr = res.data.data.map(item => {
+      return { name: item.name, count: item.count };
+    });
+    tagList.value = arr;
+  }
+};
 
+//添加标签
+const addTag = () => {
+  addTagVisible.value = true;
+};
+//弹窗关闭时钩子
+const handleClose = () => {
+  // tagList.value = [];
+  console.log(tagList.value);
+};
+const addTagSubmit = async () => {
+  if (!addTagName.value) {
+    ElMessage({
+      showClose: true,
+      message: '请输入标签内容',
+      type: 'info',
+    });
+    return;
+  }
+  const addTagForm = {
+    uid: store.userDeail.uid,
+    cname: addTagName.value,
+  };
+  console.log(addTagForm);
+  const res = await $api.photo.updateLikeById(addTagForm);
+  if (res.data) {
+    console.log(res.data);
+  }
+  addTagName.value = '';
+  getTagsByUser();
+  addTagVisible.value = false;
+};
+//添加收藏
+const addTagHandle = async () => {
+  if (!checkTag.value) {
+    ElMessage({
+      showClose: true,
+      message: '请先选择标签!',
+      type: 'info',
+    });
+    return;
+  }
+  const addTagForm = {
+    uid: store.userDeail.uid,
+    fid: currentPhoto.value.fid,
+    cname: checkTag.value,
+  };
+  const res = await $api.photo.updateLikeById(addTagForm);
+  if (res.data) {
+    console.log(res.data);
+    ElMessage({
+      showClose: true,
+      message: '收藏成功！快去查看吧',
+      type: 'success',
+    });
+  }
   getFollow();
+  TagVisible.value = false;
+};
+const addTagActive = e => {
+  const target = e.target;
+  const nameValue = target.firstChild?.nodeValue;
+  checkTag.value = nameValue;
+  console.log(checkTag.value);
 };
 //导航
 const goAddress = () => {
@@ -336,6 +460,29 @@ const toInformation = () => {};
 .msg .last_span {
   display: inline-block;
   padding-top: 10px;
+}
+.tagBox ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.tagBox ul li {
+  border: 1px solid;
+  padding: 5px 2px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.tagBox ul li.active {
+  border: 1px solid #ff1e1e;
+  color: #ff1e1e;
+}
+.tagBox ul li:hover {
+  border: 1px solid #ff1e1e;
+  color: #ff1e1e;
+}
+.tagBox ul li:last-child {
+  width: 40px;
+  text-align: center;
 }
 @media screen and (max-width: 875px) {
   .comment-list ul {

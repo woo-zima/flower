@@ -16,3 +16,31 @@ export function register(data) {
     },
   });
 }
+//更改个人介绍
+export function upIntroduction(data) {
+  return instance.post('user/upIntroduction', data, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+//获取你的收藏tag
+export function getTagByUid(uid) {
+  return instance({
+    url: 'collect/getUserLikeTag',
+    method: 'get',
+    params: {
+      uid,
+    },
+  });
+}
+//根据cname查询
+export function getTagByCname(uid) {
+  return instance({
+    url: 'collect/getLikeByCName',
+    method: 'get',
+    params: {
+      uid,
+    },
+  });
+}

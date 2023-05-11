@@ -1,6 +1,6 @@
 <template>
   <div class="likeContainer">
-    <div class="likeList">
+    <div class="likeList" v-if="likeList.length != 0">
       <div class="innerList" v-for="item in likeList" @click="toDetail(item)">
         <el-avatar class="avatar" src="http://wphoto.top/FvqbmQo3qldO7dsZXI98AkkJ16RC">
           {{ item.user.uname }}
@@ -8,6 +8,7 @@
         <img :src="'http://localhost:3000/files/' + item.furl" alt="" />
       </div>
     </div>
+    <div v-else>暂无推荐！</div>
   </div>
 </template>
 

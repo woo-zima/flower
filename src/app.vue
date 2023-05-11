@@ -33,7 +33,10 @@ body {
 li {
   list-style: none;
 }
-
+h2 {
+  margin: 0;
+  padding: 0;
+}
 a {
   text-decoration: none;
 }

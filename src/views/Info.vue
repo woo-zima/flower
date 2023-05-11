@@ -6,7 +6,17 @@
           <el-avatar fit="cover" src="http://wphoto.top/FvqbmQo3qldO7dsZXI98AkkJ16RC"></el-avatar>
         </div>
         <div class="msgMain">
-          <h2>{{ store.userDeail.uname || '' }}</h2>
+          <h2>{{ state.upMsg.uname || '' }}</h2>
+        </div>
+        <div class="infor">
+          <input
+            id="w-sign"
+            type="text"
+            v-model="state.upMsg.introduction"
+            :placeholder="state.upMsg.introduction || '编辑个人介绍'"
+            maxlength="30"
+            @change="changeInfor"
+          />
         </div>
       </div>
     </div>
@@ -27,6 +37,7 @@
               <li @click.stop="deleteUp(item)">删除</li>
             </ul>
             <img :src="'http://localhost:3000/files/' + item.furl" alt="" />
+            <p style="margin: 0">上传时间: {{ item.ftime.substring(0, 10) }}</p>
           </div>
         </div>
       </div>
@@ -37,6 +48,18 @@
 
     <el-tab-pane label="我的收藏" name="like">
       <div v-if="state.upLikePhotoList.length > 0">
+        <div class="tagBoxs">
+          <ul @click="addTagActive">
+            <li :class="['ALL' == checkTag ? 'active' : '']">ALL</li>
+            <li
+              v-for="item in tagList"
+              :key="item.name"
+              :class="[item.name == checkTag ? 'active' : '']"
+            >
+              {{ item.name }}
+            </li>
+          </ul>
+        </div>
         <div class="upContainer">
           <div
             class="in"
@@ -45,6 +68,7 @@
             @click="toDes(item.fid)"
           >
             <img :src="'http://localhost:3000/files/' + item.flower.furl" alt="" />
+            <p style="margin: 0">收藏时间: {{ item.ctime.substring(0, 10) }}</p>
           </div>
         </div>
       </div>
@@ -69,14 +93,19 @@ const state = reactive({
   upPhotoList: [],
   upLikePhotoList: [],
   upMsg: {
-    uname: 'zmrin',
+    uname: '',
+    introduction: '',
   },
 });
+//用户收藏标签
+const tagList = ref([]);
+const checkTag = ref('ALL');
 const activeName = ref('upload');
 
 onMounted(() => {
   getUpLists();
   getLikeLists();
+  getTagsByUser();
 });
 
 watch(
@@ -87,17 +116,28 @@ watch(
 );
 
 const handleClick = (tab, event) => {
-  console.log(tab, event);
+  // console.log(tab, event);
 };
 const getUpLists = async () => {
   const res = await $api.photo.getFlowerByUser(route.params.uid || 0);
   if (res.data.status === 200) {
     state.upPhotoList = fliterArray(res.data.data);
+    state.upMsg.uname = res.data.data[0].user.uname;
+    state.upMsg.introduction = res.data.data[0].user.introduction;
+  }
+};
+//获取用户收藏标签
+const getTagsByUser = async () => {
+  const res = await $api.user.getTagByUid(store.userDeail.uid);
+  if (res.data) {
+    const arr = res.data.data.map(item => {
+      return { name: item.name, count: item.count };
+    });
+    tagList.value = arr;
   }
 };
 const getLikeLists = async () => {
   const res = await $api.photo.getFlowerLikeByUser(route.params.uid || 0);
-  console.log(res);
   if (res.data.status === 200) {
     state.upLikePhotoList = fliterFlowerArray(res.data.data);
   }
@@ -142,6 +182,23 @@ const deleteUp = item => {
       console.log(action);
     });
 };
+const addTagActive = e => {
+  const target = e.target;
+  const nameValue = target.firstChild?.nodeValue;
+  checkTag.value = nameValue;
+  console.log(checkTag.value);
+};
+const changeInfor = async () => {
+  // console.log(state.upMsg.introduction);
+  const res = await $api.user.upIntroduction({
+    uid: store.userDeail.uid,
+    introduction: state.upMsg.introduction,
+  });
+  if (res) {
+    console.log(res);
+  }
+  getUpLists();
+};
 </script>
 
 <style>
@@ -155,15 +212,59 @@ const deleteUp = item => {
   background-color: #ff1e1e;
 }
 .Means {
-  padding: 20px 0 0 50px;
+  position: relative;
+  margin: 0 auto;
+  padding: 100px 0 20px 50px;
+  width: 1283px;
+  border-radius: 0 0 10px 10px;
+  background: url(http://wphoto.top/FkEU6nt7B98VjaurZGMcUBeVD5Np);
+  background-position: center;
+}
+.demo-tabs {
+  width: 1333px;
+  margin: 0 auto;
+}
+.Means .avatarImg {
+  float: left;
+  transform: scale(1.5);
 }
 .Means .msgMain {
+  padding-left: 60px;
   font-size: 20px;
   color: #fbc;
 }
+.Means .infor {
+  padding-left: 60px;
+}
+.Means #w-sign {
+  background: transparent;
+  border-radius: 4px;
+  border: none;
+  box-shadow: none;
+  color: hsla(0, 0%, 100%, 0.8);
+  font-size: 12px;
+  font-family: Microsoft Yahei;
+  line-height: 26px;
+  height: 26px;
+  margin-left: -5px;
+  padding: 0 5px;
+  position: relative;
+  top: -1px;
+  width: 730px;
+}
+.Means #w-sign:hover {
+  background: hsla(0, 0%, 100%, 0.2);
+  box-shadow: 0 0 0 1px hsla(0, 0%, 100%, 0.5);
+}
+.Means #w-sign:focus {
+  background: #fff;
+  box-shadow: inset 0 2px 4px rgba(113, 119, 130, 0.3);
+  color: #6d757a;
+  outline: none;
+}
 .upContainer {
   position: relative;
-  margin: 0 20px 40px 20px;
+  /* margin: 0 20px 40px 20px; */
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -174,11 +275,11 @@ const deleteUp = item => {
   height: 305px;
   max-width: 460px;
   border-radius: 5px;
-  min-width: calc((100% - 20px) / 3);
+  min-width: calc((100% - 25px) / 3);
 }
 .upContainer .in img {
   width: 100%;
-  height: 100%;
+  height: 90%;
   object-fit: cover;
   border-radius: 5px;
   cursor: pointer;
@@ -209,5 +310,24 @@ const deleteUp = item => {
 }
 .upContainer .in .setinner.active {
   display: block;
+}
+.tagBoxs ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.tagBoxs ul li {
+  border: 1px solid;
+  padding: 5px 2px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.tagBoxs ul li.active {
+  border: 1px solid #ff1e1e;
+  color: #ff1e1e;
+}
+.tagBoxs ul li:hover {
+  border: 1px solid #ff1e1e;
+  color: #ff1e1e;
 }
 </style>

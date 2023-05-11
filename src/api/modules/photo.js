@@ -102,14 +102,11 @@ export function isCollect(uid, fid) {
 }
 
 //更新收藏
-export function updateLikeById(uid, fid) {
+export function updateLikeById(data) {
   return instance({
     url: '/collect/addLike',
     method: 'post',
-    data: {
-      uid,
-      fid,
-    },
+    data,
   });
 }
 //用户删除自己上传的
