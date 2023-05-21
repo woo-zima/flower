@@ -5,7 +5,7 @@
 
 export const initAmap = (start, end) => {
   const key = '50d1721190af728bee089d4e78c7958b';
-  const init = (start, end) => {
+  const init = async (start, end) => {
     //根据地址查询距离
     //const start = '重庆市渝北区金开大道';
     //const end = '重庆市渝北区园博园';
@@ -13,11 +13,11 @@ export const initAmap = (start, end) => {
     //   console.log(res);
     // });
     // getLonLat(end);
-    Promise.all([getLonLat(start), getLonLat(end)]).then(res => {
+    return Promise.all([getLonLat(start), getLonLat(end)]).then(async res => {
       const start = res[0].geocodes[0].location;
       const end = res[1].geocodes[0].location;
-      getDistance(start, end).then(res => {
-        console.log(res.results[0]);
+      return getDistance(start, end).then(res => {
+        // console.log(res.results[0]);
         return res.results[0];
       });
     });
@@ -46,5 +46,5 @@ export const initAmap = (start, end) => {
     });
   };
 
-  console.log(init(start, end));
+  return init(start, end);
 };

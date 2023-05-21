@@ -38,7 +38,7 @@
 <script setup>
 import { ElConfigProvider } from 'element-plus';
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs';
-import { ref, computed, inject, onMounted, toRaw } from 'vue';
+import { ref, computed, inject, onMounted, toRaw, resolveComponent } from 'vue';
 //分隔数组函数
 import { groupArray } from '../tool/groupArray';
 //
@@ -77,6 +77,7 @@ const getFlowersMsg = async () => {
   if (res.status === 200) {
     noGroupList = res.data.flower;
     photoList.value = groupArray(res.data.flower);
+    Address(photoList.value);
   }
   // console.log(noGroupList.value);
 };
@@ -94,21 +95,34 @@ const changeMonth = () => {
   }
   getFollowByTime(forMate(monthValue.value));
 };
+
 //距离计算
 const changeGap = async () => {
-  const as = initAmap('重庆市渝北区理工大学两江校区', '重庆园博园');
-  console.log(as);
+  const flatList = photoList.value.flat();
+  //由远至近
+  if (GapValue.value === 'far') {
+    const sortList = flatList.sort((a, b) => {
+      return Number(b.distance) - Number(a.distance);
+    });
+    photoList.value = groupArray(sortList);
+    return;
+  }
+  const sortList = flatList.sort((a, b) => {
+    return Number(a.distance) - Number(b.distance);
+  });
+  photoList.value = groupArray(sortList);
 };
 
-const forEachMap = () => {
-  return new Promise(resolve => {
-    noGroupList.forEach(item => {
-      initAmap('重庆市渝北区理工大学两江校区', item.faddress).then(res => {
-        console.log('1');
-        item.distance = Number(res.distance);
-      });
+const Address = async arr => {
+  const flatArr = arr.flat();
+  const promises = flatArr.map(item => {
+    return initAmap('重庆市渝北区理工大学两江校区', item.faddress);
+  });
+  return Promise.all(promises).then(res => {
+    flatArr.forEach((item, i) => {
+      item.distance = res[i].distance;
     });
-    resolve(noGroupList);
+    return;
   });
 };
 

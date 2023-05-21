@@ -2,7 +2,7 @@
   <div class="likeContainer">
     <div class="likeList" v-if="likeList.length != 0">
       <div class="innerList" v-for="item in likeList" @click="toDetail(item)">
-        <el-avatar class="avatar" src="http://wphoto.top/FvqbmQo3qldO7dsZXI98AkkJ16RC">
+        <el-avatar class="avatar" src="https://source.unsplash.com/collection/94734566">
           {{ item.user.uname }}
         </el-avatar>
         <img :src="'http://localhost:3000/files/' + item.furl" alt="" />
@@ -40,9 +40,9 @@ const getLikeSell = async obj => {
   const { ftag, fid } = obj.value;
   const res = await $api.photo.getFlowerByTag(ftag, fid);
   if (res) {
+    console.log(res);
     likeList.value = fliterArray(res.data.data);
   }
-  //   console.log(obj.value.fid);
 };
 const toDetail = item => {
   console.log(item);
@@ -65,6 +65,7 @@ const toDetail = item => {
   border-radius: 5px;
   cursor: pointer;
   max-height: 280px;
+  margin-bottom: 10px;
 }
 .innerList .avatar {
   position: absolute;

@@ -35,12 +35,12 @@ export function getTagByUid(uid) {
   });
 }
 //根据cname查询
-export function getTagByCname(uid) {
+export function getTagByCname(cname) {
   return instance({
     url: 'collect/getLikeByCName',
     method: 'get',
     params: {
-      uid,
+      cname,
     },
   });
 }

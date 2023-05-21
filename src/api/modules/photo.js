@@ -79,6 +79,16 @@ export function getFlowerByUser(uid) {
     },
   });
 }
+//获取用户上传待审核的
+export function getFlowerByUserPass(uid) {
+  return instance({
+    url: '/flower/getFlowerByUserPass',
+    method: 'get',
+    params: {
+      uid,
+    },
+  });
+}
 //获取用户收藏的
 export function getFlowerLikeByUser(uid) {
   return instance({
@@ -109,6 +119,7 @@ export function updateLikeById(data) {
     data,
   });
 }
+
 //用户删除自己上传的
 export function deletePhoto(fid) {
   return instance({

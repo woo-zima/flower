@@ -24,6 +24,12 @@
 
   <el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
     <el-tab-pane label="上传作品" name="upload">
+      <div class="tagBoxs">
+        <ul @click="changeUpActive">
+          <li :class="['ALL' == checkUp ? 'active' : '']">ALL</li>
+          <li :class="['SHing' == checkUp ? 'active' : '']">审核中</li>
+        </ul>
+      </div>
       <div v-if="state.upPhotoList.length > 0">
         <div class="upContainer">
           <div
@@ -47,24 +53,25 @@
     </el-tab-pane>
 
     <el-tab-pane label="我的收藏" name="like">
+      <div class="tagBoxs">
+        <ul @click="addTagActive">
+          <li :class="['ALL' == checkTag ? 'active' : '']">ALL</li>
+          <li
+            v-for="item in tagList"
+            :key="item.name"
+            :class="[item.name == checkTag ? 'active' : '']"
+          >
+            {{ item.name }}
+          </li>
+        </ul>
+      </div>
       <div v-if="state.upLikePhotoList.length > 0">
-        <div class="tagBoxs">
-          <ul @click="addTagActive">
-            <li :class="['ALL' == checkTag ? 'active' : '']">ALL</li>
-            <li
-              v-for="item in tagList"
-              :key="item.name"
-              :class="[item.name == checkTag ? 'active' : '']"
-            >
-              {{ item.name }}
-            </li>
-          </ul>
-        </div>
         <div class="upContainer">
           <div
             class="in"
             v-for="item in state.upLikePhotoList"
             :key="item.fid"
+            :class="['0' == item.fpass ? 'pass' : '']"
             @click="toDes(item.fid)"
           >
             <img :src="'http://localhost:3000/files/' + item.flower.furl" alt="" />
@@ -100,6 +107,7 @@ const state = reactive({
 //用户收藏标签
 const tagList = ref([]);
 const checkTag = ref('ALL');
+const checkUp = ref('All');
 const activeName = ref('upload');
 
 onMounted(() => {
@@ -172,7 +180,7 @@ const deleteUp = item => {
     .then(() => {
       console.log(item.fid);
       const res = $api.photo.deletePhoto(item.fid);
-      console.log(res);
+      // console.log(res);
       ElMessage({
         type: 'info',
         message: '删除成功',
@@ -182,11 +190,38 @@ const deleteUp = item => {
       console.log(action);
     });
 };
-const addTagActive = e => {
+//收藏标签切换
+const addTagActive = async e => {
   const target = e.target;
   const nameValue = target.firstChild?.nodeValue;
   checkTag.value = nameValue;
-  console.log(checkTag.value);
+  // console.log(checkTag.value);
+  if (checkTag.value === 'ALL') {
+    getLikeLists();
+    return;
+  }
+  const res = await $api.user.getTagByCname(checkTag.value);
+  if (res.data) {
+    state.upLikePhotoList = fliterFlowerArray(res.data.data);
+  } else {
+    state.upLikePhotoList = [];
+  }
+};
+// 上传标签切换
+const changeUpActive = async e => {
+  const target = e.target;
+  const nameValue = target.firstChild?.nodeValue;
+  checkUp.value = nameValue;
+  if (checkUp.value === 'ALL') {
+    getUpLists();
+    return;
+  }
+  const res = await $api.photo.getFlowerByUserPass(store.userDeail.uid);
+  if (res.data) {
+    state.upPhotoList = fliterArray(res.data.data);
+  } else {
+    state.upPhotoList = [];
+  }
 };
 const changeInfor = async () => {
   // console.log(state.upMsg.introduction);
@@ -269,11 +304,12 @@ const changeInfor = async () => {
   flex-direction: row;
   flex-wrap: wrap;
   gap: 10px;
+  padding-bottom: 30px;
 }
 .upContainer .in {
   position: relative;
   height: 305px;
-  max-width: 460px;
+  max-width: 436px;
   border-radius: 5px;
   min-width: calc((100% - 25px) / 3);
 }
@@ -315,16 +351,20 @@ const changeInfor = async () => {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  width: max-content;
 }
 .tagBoxs ul li {
   border: 1px solid;
-  padding: 5px 2px;
-  border-radius: 3px;
+  padding: 5px 9px;
+  border-radius: 50px;
   cursor: pointer;
 }
 .tagBoxs ul li.active {
   border: 1px solid #ff1e1e;
   color: #ff1e1e;
+}
+.upContainer .in img.pass {
+  border: 1px solid #ff1e1e;
 }
 .tagBoxs ul li:hover {
   border: 1px solid #ff1e1e;

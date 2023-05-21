@@ -35,8 +35,8 @@
                   <li @click="addTag">+</li>
                 </ul>
               </div>
-              <el-dialog v-model="addTagVisible" title="新建标签" width="250px">
-                <input type="text" v-model="addTagName" />
+              <el-dialog v-model="addTagVisible" title="新增标签" width="250px">
+                <input type="text" v-model="addTagName" class="newUpInput" />
                 <span class="dialog-footer">
                   <el-button @click="addTagVisible = false">取消</el-button>
                   <el-button type="primary" @click="addTagSubmit">确认</el-button>
@@ -387,9 +387,9 @@ const goAddress = () => {
   dialogVisible.value = true;
 };
 
-const fliterMoon = moon => {
+const fliterMoon = computed(moon => {
   return moon.substring(0, 4) + '年' + moon.substring(4, 6) + '月' + moon.substring(6, 8) + '日';
-};
+});
 const toContentInformation = () => {};
 const toInformation = () => {};
 </script>
@@ -468,8 +468,8 @@ const toInformation = () => {};
 }
 .tagBox ul li {
   border: 1px solid;
-  padding: 5px 2px;
-  border-radius: 3px;
+  padding: 5px 9px;
+  border-radius: 50px;
   cursor: pointer;
 }
 .tagBox ul li.active {
@@ -481,8 +481,17 @@ const toInformation = () => {};
   color: #ff1e1e;
 }
 .tagBox ul li:last-child {
-  width: 40px;
+  width: 38px;
+  line-height: 20px;
   text-align: center;
+}
+.newUpInput {
+  outline: none;
+  border: none;
+  padding: 6px 5px;
+  margin-bottom: 18px;
+  border-radius: 59px;
+  background-color: #f3f8fe;
 }
 @media screen and (max-width: 875px) {
   .comment-list ul {
